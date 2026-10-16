@@ -103,3 +103,10 @@ _netrc
 Thumbs.db
 Desktop.ini
 .DS_Store
+
+# Local portable toolchains and Python test caches
+/.tools/
+/.local/
+__pycache__/
+*.pyc
+/.test-results/

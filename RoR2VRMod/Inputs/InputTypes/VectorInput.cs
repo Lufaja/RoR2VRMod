@@ -30,9 +30,7 @@ namespace VRMod.Inputs
 
         internal override void UpdateValues(CustomController vrController)
         {
-            if (!CheckDevice()) return;
-
-            Vector2 value = PollVector();
+            Vector2 value = CheckDevice() ? PollVector() : Vector2.zero;
             vrController.SetAxisValueById(xAxisID, value.x);
             vrController.SetAxisValueById(yAxisID, value.y);
         }

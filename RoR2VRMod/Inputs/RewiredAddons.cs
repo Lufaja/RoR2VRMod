@@ -50,6 +50,7 @@ namespace VRMod
                     new ControllerElementIdentifier(33, "UseKeyItem", "", "", ControllerElementType.Button, true),
                     new ControllerElementIdentifier(34, "KeyItemNextElement", "", "", ControllerElementType.Button, true),
                     new ControllerElementIdentifier(35, "KeyItemPrevElement", "", "", ControllerElementType.Button, true),
+                    new ControllerElementIdentifier(Inputs.GameplayBindingCatalog.AutoSprintElement, "AutoSprint", "", "", ControllerElementType.Button, true),
                 },
                 new int[] { },
                 new int[] { },
@@ -236,6 +237,7 @@ namespace VRMod
                 new ActionElementMap(9 , ControllerElementType.Button, (ModConfig.LeftDominantHand.Value ? 11 : 10) , Pole.Positive, AxisRange.Full, false), //Utility
                 new ActionElementMap(10, ControllerElementType.Button, (ModConfig.LeftDominantHand.Value ? 10 : 11) , Pole.Positive, AxisRange.Full, false), //Special
                 new ActionElementMap(18, ControllerElementType.Button, 13, Pole.Positive, AxisRange.Full, false), //Sprint
+                new ActionElementMap(18, ControllerElementType.Button, Inputs.GameplayBindingCatalog.AutoSprintElement, Pole.Positive, AxisRange.Full, false), //Synthetic sprint, never a physical stick click
                 new ActionElementMap(19, ControllerElementType.Button, 15, Pole.Positive, AxisRange.Full, false), //Scoreboard or Profile
                 new ActionElementMap(28, ControllerElementType.Button, 14, Pole.Positive, AxisRange.Full, false), //Ping
                 new ActionElementMap(100, ControllerElementType.Button, 26, Pole.Positive, AxisRange.Full, false), //ExtraSkill1
@@ -249,6 +251,11 @@ namespace VRMod
                 new ActionElementMap(47, ControllerElementType.Button, 35, Pole.Negative, AxisRange.Full, false) //KeyItemChangeElement - (previous)
             };
 
+            foreach (ActionElementMap map in defaultElementMaps)
+            {
+                if (System.Array.IndexOf(Inputs.GameplayBindingCatalog.ActionIds, map.actionId) >= 0 && map.elementIdentifierId != Inputs.GameplayBindingCatalog.AutoSprintElement)
+                    map.elementIdentifierId = Controllers.GameplayElement(map.actionId);
+            }
             ControllerGlyphs.RegisterFallbackBindings(defaultElementMaps);
             return CreateCustomMap("VRDefault", 0, controllerID, defaultElementMaps);
         }

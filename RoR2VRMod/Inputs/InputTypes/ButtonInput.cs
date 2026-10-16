@@ -11,6 +11,7 @@ namespace VRMod.Inputs
         private readonly ViveOverride viveOverride;
 
         internal int ElementId => buttonID;
+        internal bool IsHeld => CheckDevice() && PollButtonState();
 
         internal ButtonInput(XRNode deviceNode, InputHelpers.Button button, int buttonID, ViveOverride viveOverride = ViveOverride.None) : base(deviceNode)
         {
@@ -47,9 +48,8 @@ namespace VRMod.Inputs
 
         internal override void UpdateValues(CustomController vrController)
         {
-            if (!CheckDevice()) return;
-
-            vrController.SetButtonValueById(buttonID, PollButtonState());
+            // Losing a controller must release the previous value, not leave an action held.
+            vrController.SetButtonValueById(buttonID, IsHeld);
         }
     }
 }

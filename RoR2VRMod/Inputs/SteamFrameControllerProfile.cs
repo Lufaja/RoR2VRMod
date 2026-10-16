@@ -26,7 +26,7 @@ using PoseControl = UnityEngine.XR.OpenXR.Input.PoseControl;
 namespace VRMod.Inputs
 {
     /// <summary>
-    /// This <see cref="OpenXRInteractionFeature"/> enables the use of Oculus TouchControllers interaction profiles in OpenXR.
+    /// Native Steam Frame profile. The runtime must expose XR_VALVE_frame_controller_interaction.
     /// </summary>
     public class SteamFrameControllerProfile : OpenXRInteractionFeature
     {
@@ -38,7 +38,7 @@ namespace VRMod.Inputs
         /// <summary>
         /// An Input System device based on the hand interaction profile in the <a href="https://www.khronos.org/registry/OpenXR/specs/1.0/html/xrspec.html#_oculus_touch_controller_profile">Oculus Touch Controller</a>.
         /// </summary>
-        [Preserve, InputControlLayout(displayName = "Oculus Touch Controller (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
+        [Preserve, InputControlLayout(displayName = "Steam Frame Controller (OpenXR)", commonUsages = new[] { "LeftHand", "RightHand" })]
         public class SteamFrameController : XRControllerWithRumble
         {
             /// <summary>
@@ -307,6 +307,7 @@ namespace VRMod.Inputs
         public const string haptic = "/output/haptic";
 
         private const string kDeviceLocalizedName = "Steam Frame Controller OpenXR";
+        private static bool loggedCompatibilityFallback;
 
         /// <summary>
         /// Registers the <see cref="SteamFrameController"/> layout with the Input System.
@@ -339,6 +340,18 @@ namespace VRMod.Inputs
         /// <inheritdoc/>
         public override void RegisterActionMapsWithRuntime()
         {
+            // Check when OpenXR registers actions, after instance creation; checking during
+            // feature setup would report false even for a runtime that supports the extension.
+            if (!UnityEngine.XR.OpenXR.OpenXRRuntime.IsExtensionEnabled("XR_VALVE_frame_controller_interaction"))
+            {
+                if (!loggedCompatibilityFallback)
+                {
+                    loggedCompatibilityFallback = true;
+                    VRMod.StaticLogger.LogInfo("[VR input] Native Steam Frame extension is not enabled. Leaving the registered Touch and other compatibility profiles available; controller emulation is provided by the active runtime.");
+                }
+                return;
+            }
+
             ActionMapConfig actionMap = new ActionMapConfig()
             {
                 name = "steamframecontroller",

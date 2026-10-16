@@ -1,9 +1,18 @@
 # publicize.ps1 <in.dll> <out.dll> [searchDir...]
 # Makes every type/method/field/property/event public so mod code can be compiled
 # against private game members (the mod skips IL verification at runtime).
-param([string]$inPath, [string]$outPath, [string[]]$searchDirs)
+param(
+    [Parameter(Mandatory)][string]$inPath,
+    [Parameter(Mandatory)][string]$outPath,
+    [Parameter(Mandatory)][string]$CecilPath,
+    [string[]]$searchDirs
+)
 $ErrorActionPreference = 'Stop'
-Add-Type -Path '/root/tools/monomod/Mono.Cecil.dll' | Out-Null
+Add-Type -Path $CecilPath | Out-Null
+if ([IO.Path]::GetFullPath($inPath) -eq [IO.Path]::GetFullPath($outPath)) {
+    throw 'Publicized references must be separate copies; refusing to overwrite the input.'
+}
+New-Item -ItemType Directory -Force (Split-Path -Parent $outPath) | Out-Null
 
 $resolver = New-Object Mono.Cecil.DefaultAssemblyResolver
 foreach ($d in $searchDirs) { $resolver.AddSearchDirectory($d) }
@@ -35,5 +44,5 @@ $count = 0
 foreach ($module in $asm.Modules) {
     foreach ($t in $module.Types) { Publicize-Type $t; $count++ }
 }
-$asm.Write($outPath)
+try { $asm.Write($outPath) } finally { $asm.Dispose(); $resolver.Dispose() }
 Write-Host "publicized $count top-level types -> $outPath"

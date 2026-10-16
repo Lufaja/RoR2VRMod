@@ -281,7 +281,7 @@ namespace VRMod
                 "VR Settings",
                 "Seated Mode",
                 true,
-                "Enable this setting for a better seated experience. Recentering your HMD will place the camera at eye level of the in-game character. Disable it for standing/roomscale play where your real floor height sets the camera height. Keep in mind that seated play is not compatible with LIV XR Capture."
+                "Recommended seated mode: recentering places the camera at the character's eye level. FALSE enables the experimental legacy standing mode. Both use Device tracking origin; floor-calibrated roomscale is not implemented or verified. Seated play is not compatible with LIV XR Capture."
             );
             HeightMultiplier = configFile.Bind<float>(
                 "VR Settings",
@@ -573,7 +573,7 @@ namespace VRMod
             SnapTurnAngle = configFile.Bind<int>(
                 "Controls",
                 "Snap turn angle",
-                45,
+                30,
                 "Rotation in degrees of each snap turn. If you're trying to change the smooth turn speed, use the gamepad sensitivity setting in-game."
             );
             SnapTurnHoldDelay = configFile.Bind<float>(
@@ -613,6 +613,8 @@ namespace VRMod
                 0.5f,
                 "The amount of smoothing applied to the hand position and rotation. Set to 0 to completely remove stabilisation."
             );
+
+            GameplayBindingConfig.Init(configFile);
 
             UpdateDependantValues();
 
@@ -865,6 +867,8 @@ namespace VRMod
             internal readonly float minValue;
             internal readonly float maxValue;
             internal SettingUpdate settingUpdate;
+            internal string[] choiceValues;
+            internal string[] choiceLabels;
 
             internal ConfigSetting(ConfigEntryBase entry, SettingUpdate settingUpdate, EventHandler onChangedCallback = null)
             {

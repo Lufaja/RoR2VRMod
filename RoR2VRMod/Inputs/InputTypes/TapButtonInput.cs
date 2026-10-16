@@ -13,27 +13,17 @@ namespace VRMod.Inputs
     /// </summary>
     internal class TapButtonInput : ButtonInput
     {
-        internal const float HoldThreshold = 0.4f; // must match HoldableButtonInput
-        private const float PulseLength = 0.05f;
-
-        private bool prev;
-        private float pressTime;
-        private float pulseUntil;
+        internal const float HoldThreshold = ButtonGestureState.HoldThreshold;
+        private readonly ButtonGestureState gesture = new ButtonGestureState();
 
         internal TapButtonInput(XRNode deviceNode, InputHelpers.Button button, int buttonID, ViveOverride viveOverride = ViveOverride.None) : base(deviceNode, button, buttonID, viveOverride) { }
 
         internal override void UpdateValues(CustomController vrController)
         {
-            if (!CheckDevice()) return;
-
-            float now = Time.realtimeSinceStartup;
-            bool value = PollButtonState();
-
-            if (value && !prev) pressTime = now;
-            if (!value && prev && now - pressTime < HoldThreshold) pulseUntil = now + PulseLength;
-
-            vrController.SetButtonValueById(buttonID, now < pulseUntil);
-            prev = value;
+            bool available = CheckDevice();
+            vrController.SetButtonValueById(buttonID, gesture.PollTap(available, available && PollButtonState(), Time.realtimeSinceStartup));
         }
+
+        internal override void ResetState() => gesture.Reset();
     }
 }

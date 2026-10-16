@@ -138,7 +138,8 @@ namespace VRMod
                     {
                         string value = (entry as ConfigEntry<string>).Value;
 
-                        if (Array.Exists((self as CarouselController).choices, x => x.convarValue == value))
+                        CarouselController carousel = self as CarouselController;
+                        if (carousel != null && Array.Exists(carousel.choices, x => x.convarValue == value))
                         {
                             return value;
                         }
@@ -148,6 +149,8 @@ namespace VRMod
                                 return "#FFFFFF";
                             else if (self.settingName == "vr_haptics_suit")
                                 return "None";
+                            else if (setting.choiceValues != null && setting.choiceValues.Length > 0)
+                                return setting.choiceValues[0];
                         }
                     }
                 }
@@ -313,7 +316,18 @@ namespace VRMod
 
                     CarouselController carousel = settingInstance as CarouselController;
                     List<CarouselController.Choice> choices = new List<CarouselController.Choice>();
-                    if (keyValuePair.Key == "vr_ray_color")
+                    if (setting.choiceValues != null)
+                    {
+                        for (int i = 0; i < setting.choiceValues.Length; i++)
+                        {
+                            choices.Add(new CarouselController.Choice
+                            {
+                                convarValue = setting.choiceValues[i],
+                                suboptionDisplayToken = setting.choiceLabels[i]
+                            });
+                        }
+                    }
+                    else if (keyValuePair.Key == "vr_ray_color")
                     {
                         string[] choiceStrings = new string[]
                         {

@@ -1,5 +1,18 @@
 # Changelog
 
+## Risk of VR 1.1.0 — source implementation, hardware validation pending
+
+- Fork identity and documentation now point to Lufaja/RoR2VRMod; original plugin ID and credits retained.
+- Configurable gameplay bindings, a one-shot seated Steam Frame preset and safe controller-input lifecycle handling.
+- Separate synthetic autosprint input; no auto stick-click for flying bodies (candidate repair for fork issue #3).
+- Camera projection lifecycle/ownership corrections and bounded stereo diagnostics; original issue #71 is not declared solved.
+- Runtime and optional world-picker event diagnostics, plus explicit upstream issue acceptance tests.
+- Native XR files receive backup/hash/journal protection and a guarded rollback tool.
+- Portable Python/PowerShell build planning, dependency preflight, immutable XR source lock and receipt-verified allowlist packaging.
+- No full mod build or headset validation yet; no foveated-rendering implementation or performance claim.
+
+## Upstream history
+
 This package continues [DrBibop's RoR2VRMod](https://github.com/DrBibop/RoR2VRMod) (MIT), whose own history ends at 2.9.2; its original changelog is kept in the source repository as `CHANGELOG-original-DrBibop.md`. Version numbers restart at 1.0.x for this package.
 
 ### 1.0.6

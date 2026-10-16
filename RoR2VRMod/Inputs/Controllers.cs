@@ -160,99 +160,66 @@ namespace VRMod
             skillBindingOverrides.Add(new SkillBindingOverride(bodyName, dominantTrigger, nonDominantTrigger, nonDominantGrip, dominantGrip));
         }
 
+        private static string activeBindingBody;
+        private static readonly Dictionary<int, int> gameplayElements = new Dictionary<int, int>();
+
         internal static void ApplyRemaps(string bodyName)
         {
-            if (!skillBindingOverrides.Exists(x => x.bodyName == bodyName))
-            {
-                VRMod.StaticLogger.LogInfo(String.Format("No binding overrides found for \'{0}\'. Using default binding.", bodyName));
-                RevertRemap();
-                return;
-            }
-
-            VRMod.StaticLogger.LogInfo(String.Format("Binding overrides were found for \'{0}\'. Applying overrides.", bodyName));
-            SkillBindingOverride bindingOverride = skillBindingOverrides.FirstOrDefault(x => x.bodyName == bodyName);
-
-            if (bindingOverride.bodyName == bodyName)
-            {
-                int[] originalSkillBindingIDs = new int[]
-                {
-                    (ModConfig.LeftDominantHand.Value ? 9 : 8),
-                    (ModConfig.LeftDominantHand.Value ? 8 : 9),
-                    (ModConfig.LeftDominantHand.Value ? 11 : 10),
-                    (ModConfig.LeftDominantHand.Value ? 10 : 11)
-                };
-
-                ActionElementMap[] newMapOrder = new ActionElementMap[]
-                {
-                    vrGameplayMap.GetElementMapsWithAction(7 + (int)bindingOverride.dominantTrigger)[0],
-                    vrGameplayMap.GetElementMapsWithAction(7 + (int)bindingOverride.nonDominantTrigger)[0],
-                    vrGameplayMap.GetElementMapsWithAction(7 + (int)bindingOverride.nonDominantGrip)[0],
-                    vrGameplayMap.GetElementMapsWithAction(7 + (int)bindingOverride.dominantGrip)[0]
-                };
-
-                ControllerMap controllerMap = Utils.localInputPlayer.controllers.maps.GetMap(vrControllers, vrGameplayMap.id);
-
-                for (int i = 0; i < 4; i++)
-                {
-                    ActionElementMap elementMap = newMapOrder[i];
-
-                    if (elementMap.elementIdentifierId == originalSkillBindingIDs[i]) continue;
-
-                    if (!controllerMap.ReplaceElementMap(elementMap.id, elementMap.actionId, elementMap.axisContribution, originalSkillBindingIDs[i], elementMap.elementType, elementMap.axisRange, elementMap.invert))
-                    {
-                        VRMod.StaticLogger.LogError("An error occured while trying to override skill bindings.");
-                    }
-                }
-            }
+            activeBindingBody = bodyName;
+            RefreshGameplayBindings();
         }
 
         internal static void RevertRemap()
         {
-            ControllerMap map = Utils.localInputPlayer.controllers.maps.GetMap(vrControllers, vrGameplayMap.id);
-
-            int[] originalSkillBindingIDs = new int[]
-            {
-                (ModConfig.LeftDominantHand.Value ? 9 : 8),
-                (ModConfig.LeftDominantHand.Value ? 8 : 9),
-                (ModConfig.LeftDominantHand.Value ? 11 : 10),
-                (ModConfig.LeftDominantHand.Value ? 10 : 11)
-            };
-
-            for (int i = 0; i < 4; i++)
-            {
-                ActionElementMap elementMap = vrGameplayMap.GetElementMapsWithAction(7 + i)[0];
-
-                if (elementMap.elementIdentifierId == originalSkillBindingIDs[i]) continue;
-
-                if (!map.ReplaceElementMap(elementMap.id, elementMap.actionId, elementMap.axisContribution, originalSkillBindingIDs[i], elementMap.elementType, elementMap.axisRange, elementMap.invert))
-                {
-                    VRMod.StaticLogger.LogError("An error occured while trying to revert skill binding overrides.");
-                }
-            }
+            activeBindingBody = null;
+            RefreshGameplayBindings();
         }
 
         internal static void ChangeDominanceDependantMaps()
         {
-            Player player = Utils.localInputPlayer;
+            RefreshGameplayBindings();
+        }
 
-            for (int i = 7; i < 11; i++)
+        internal static int GameplayElement(int actionId)
+        {
+            if (gameplayElements.TryGetValue(actionId, out int resolved)) return resolved;
+            int[] slots = null;
+            SkillBindingOverride binding = skillBindingOverrides.FirstOrDefault(x => x.bodyName == activeBindingBody);
+            if (!string.IsNullOrEmpty(activeBindingBody) && binding.bodyName == activeBindingBody)
+                slots = new[] { (int)binding.dominantTrigger, (int)binding.nonDominantTrigger, (int)binding.nonDominantGrip, (int)binding.dominantGrip };
+            int original = GameplayBindingCatalog.DefaultElement(actionId, ModConfig.LeftDominantHand.Value, slots);
+            resolved = GameplayBindingConfig.Resolve(actionId, original);
+            gameplayElements[actionId] = resolved;
+            return resolved;
+        }
+
+        /// <summary>Update gameplay maps only; UI actions keep their native physical buttons.</summary>
+        internal static void RefreshGameplayBindings()
+        {
+            gameplayElements.Clear();
+            if (vrControllers == null || vrGameplayMap == null) return;
+            var maps = new HashSet<ControllerMap> { vrGameplayMap };
+            Player main = LocalUserManager.GetRewiredMainPlayer();
+            Player local = Utils.localInputPlayer;
+            if (main != null) maps.Add(main.controllers.maps.GetMap(vrControllers, vrGameplayMap.id));
+            if (local != null) maps.Add(local.controllers.maps.GetMap(vrControllers, vrGameplayMap.id));
+            foreach (ControllerMap map in maps)
             {
-                ActionElementMap map = vrGameplayMap.GetElementMapsWithAction(i)[0];
-                int elementIdentifier = map.elementIdentifierId;
-
-                if (elementIdentifier == 8) elementIdentifier = 9;
-                else if (elementIdentifier == 9) elementIdentifier = 8;
-                else if (elementIdentifier == 10) elementIdentifier = 11;
-                else if (elementIdentifier == 11) elementIdentifier = 10;
-
-                bool result = player.controllers.maps.GetMap(vrControllers, vrGameplayMap.id).ReplaceElementMap(map.id, map.actionId, map.axisContribution, elementIdentifier, map.elementType, map.axisRange, map.invert);
-
-                if (!result)
+                if (map == null) continue;
+                foreach (int actionId in GameplayBindingCatalog.ActionIds)
                 {
-                    VRMod.StaticLogger.LogError("Failed to remap");
-                    return;
+                    int element = GameplayElement(actionId);
+                    foreach (ActionElementMap binding in map.GetElementMapsWithAction(actionId).ToArray())
+                    {
+                        // Synthetic sprint has its own element and never moves to a physical button.
+                        if (binding.elementIdentifierId == GameplayBindingCatalog.AutoSprintElement || binding.elementIdentifierId == element) continue;
+                        if (!map.ReplaceElementMap(binding.id, binding.actionId, binding.axisContribution, element, binding.elementType, binding.axisRange, binding.invert))
+                            VRMod.StaticLogger.LogWarning($"[VR input] Could not update gameplay binding for action {actionId}.");
+                    }
                 }
             }
+            foreach (int actionId in GameplayBindingCatalog.ActionIds)
+                ControllerGlyphs.RegisterFallbackBindings(vrGameplayMap.GetElementMapsWithAction(actionId));
         }
 
         private static void ControllerMovementDirection(ILContext il)
@@ -481,8 +448,10 @@ namespace VRMod
             if (VRKeyboard.IsOpen || Time.unscaledTime < suppressGameInputUntil)
             {
                 for (int id = 0; id <= 5; id++) vrControllers.SetAxisValueById(id, 0f);
-                for (int id = 6; id <= Inputs.KeyItemCombo.PrevElement; id++) vrControllers.SetButtonValueById(id, false);
+                for (int id = 6; id <= GameplayBindingCatalog.AutoSprintElement; id++) vrControllers.SetButtonValueById(id, false);
                 Inputs.KeyItemCombo.Reset();
+                autoSprint.Reset();
+                foreach (BaseInput input in inputs) input.ResetState();
                 VRKeyboard.Tick();
                 return;
             }
@@ -493,7 +462,12 @@ namespace VRMod
             foreach (BaseInput input in inputs)
             {
                 if (lobbyActive && input is Inputs.ButtonInput bi && (bi.ElementId == 24 || bi.ElementId == 15))
+                {
+                    // Suppress before polling: clearing after UpdateValues would latch a false press.
+                    input.ResetState();
+                    vrControllers.SetButtonValueById(bi.ElementId, false);
                     continue;
+                }
                 if (Inputs.KeyItemCombo.Owns(input))
                     continue;
                 input.UpdateValues(vrControllers);
@@ -515,6 +489,7 @@ namespace VRMod
                 else
                     vrControllers.SetButtonValueById(32, false);
             }
+            else vrControllers.SetButtonValueById(32, false);
 
             ApplyAutoSprint();
 
@@ -524,107 +499,27 @@ namespace VRMod
             VRInputDiagnostics.Tick(inputs);
         }
 
-        /// <summary>
-        /// Auto Sprint: hold the sprint button (element 13) on whenever the left stick is pushed, so
-        /// the player never has to click the stick in. The game's own sprint logic still handles
-        /// abilities that cancel sprinting; we just keep "re-pressing" sprint while moving.
-        /// </summary>
-        private static bool autoSprintHeldHigh;
-
-        private static float lastAutoSprintPulse;
+        private static readonly AutoSprintPulse autoSprint = new AutoSprintPulse();
 
         /// <summary>
-        /// Auto Sprint. For ordinary (non-flying) characters the game does NOT read sprint as a hold:
-        /// PlayerCharacterMasterController records GetButtonDown and PollButtonInput TOGGLES the sprint
-        /// state on each press. Simply holding the sprint button down - what this used to do - produces
-        /// exactly one press when you start moving, so sprint engaged once and never came back after
-        /// anything cancelled it (firing a skill, taking a hit), because no new press could occur while
-        /// the stick stayed pushed. Worse, releasing and re-pushing the stick sent a second press, which
-        /// toggled sprint back OFF: that is the "go backwards then forwards to get it to engage" feel.
-        ///
-        /// So it now sends a fresh press only while moving AND not already sprinting, one frame high
-        /// with a gap in between so each is a clean edge, and stops the moment sprint is on. Flying
-        /// characters take the game's other path, which really is a hold, so for them the button is
-        /// simply held.
-        ///
-        /// Attack priority: while any skill button (trigger or grip on either hand) is held, auto
-        /// sprint is suppressed so the attack is never cancelled by a sprint re-engage. Sprint
-        /// resumes naturally when the attack button is released and the stick is still pushed forward.
+        /// Ground movement can request a fresh Sprint edge after an ability cancels sprinting.
+        /// Flying bodies use Sprint for descent, so they only receive the physical binding.
+        /// A separate virtual element prevents automatic sprint from pressing another action
+        /// when a user assigns that action to the original sprint button.
         /// </summary>
         private static void ApplyAutoSprint()
         {
-            if (!ModConfig.AutoSprint.Value || vrControllers == null || !RoR2.Run.instance)
-                return;
-
-            UnityEngine.XR.InputDevice leftHand = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.LeftHand);
-            if (!leftHand.isValid)
-                return;
-
-            Vector2 stick;
-            if (!leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out stick))
-                return;
-
-            bool moving = stick.sqrMagnitude > 0.04f; // ~0.2 deadzone
-
-            RoR2.CharacterBody body = Utils.localBody;
-
-            if (!moving || !body)
-            {
-                autoSprintHeldHigh = false;
-                return;
-            }
-
-            // Attack priority: suppress auto sprint while any skill button is held.
-            // This ensures attacks are never cancelled by sprint re-engaging mid-fire.
-            if (IsAnySkillButtonHeld())
-            {
-                autoSprintHeldHigh = false;
+            if (vrControllers == null) return;
+            CharacterBody body = Utils.localBody;
+            InputDevice leftHand = InputDevices.GetDeviceAtXRNode(XRNode.LeftHand);
+            Vector2 stick = Vector2.zero;
+            bool moving = leftHand.isValid && leftHand.TryGetFeatureValue(CommonUsages.primary2DAxis, out stick) && stick.sqrMagnitude > 0.04f;
+            bool eligible = ModConfig.AutoSprint.Value && RoR2.Run.instance && body && moving;
+            if (eligible && (IsAnySkillButtonHeld() || IsSkillStateBusy(body)))
                 skillBusyUntil = Time.unscaledTime + 0.2f;
-                return;
-            }
-
-            // Also yield while a skill is still PLAYING OUT after the button was released (Bandit's
-            // revolver has a wind-up before the shot; re-engaging sprint during it cancels the skill).
-            // "Busy" = the Weapon state machines are not in their idle/main state.
-            if (IsSkillStateBusy(body))
-            {
-                autoSprintHeldHigh = false;
-                skillBusyUntil = Time.unscaledTime + 0.2f;
-                return;
-            }
-            if (Time.unscaledTime < skillBusyUntil)
-            {
-                autoSprintHeldHigh = false;
-                return;
-            }
-
-            // Fliers: the game reads the sprint button as a hold for them, so hold it.
-            if (IsFlier())
-            {
-                vrControllers.SetButtonValueById(13, true);
-                return;
-            }
-
-            if (body.isSprinting)
-            {
-                autoSprintHeldHigh = false;
-                return;
-            }
-
-            // The element is rewritten from the physical stick-click every frame before this runs, so
-            // simply not setting it lets the button fall low again - that is the release half of the pulse.
-            if (autoSprintHeldHigh)
-            {
-                autoSprintHeldHigh = false;
-                return;
-            }
-
-            if (Time.unscaledTime - lastAutoSprintPulse < 0.15f)
-                return;
-
-            lastAutoSprintPulse = Time.unscaledTime;
-            autoSprintHeldHigh = true;
-            vrControllers.SetButtonValueById(13, true);
+            eligible = eligible && Time.unscaledTime >= skillBusyUntil && !IsGameplayButtonHeld(18);
+            bool pressed = autoSprint.Poll(Time.unscaledTime, eligible, IsFlier(), body && body.isSprinting);
+            vrControllers.SetButtonValueById(GameplayBindingCatalog.AutoSprintElement, pressed);
         }
 
         private static float skillBusyUntil;
@@ -660,35 +555,19 @@ namespace VRMod
             return false;
         }
 
-        /// <summary>
-        /// Returns true when any skill button (trigger or grip on either hand) is currently pressed.
-        /// Reads the XR hardware state directly so auto sprint can yield to attacks regardless of
-        /// which skill is bound to which button.
-        /// </summary>
         private static bool IsAnySkillButtonHeld()
         {
-            try
-            {
-                UnityEngine.XR.InputDevice left = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.LeftHand);
-                UnityEngine.XR.InputDevice right = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.RightHand);
+            for (int action = 7; action <= 10; action++)
+                if (IsGameplayButtonHeld(action)) return true;
+            return false;
+        }
 
-                bool pressed;
-
-                // Right trigger
-                if (right.isValid && right.IsPressed(InputHelpers.Button.TriggerButton, out pressed) && pressed)
-                    return true;
-                // Left trigger
-                if (left.isValid && left.IsPressed(InputHelpers.Button.TriggerButton, out pressed) && pressed)
-                    return true;
-                // Left grip
-                if (left.isValid && left.IsPressed(InputHelpers.Button.GripButton, out pressed) && pressed)
-                    return true;
-                // Right grip
-                if (right.isValid && right.IsPressed(InputHelpers.Button.GripButton, out pressed) && pressed)
-                    return true;
-            }
-            catch { }
-
+        private static bool IsGameplayButtonHeld(int actionId)
+        {
+            int element = GameplayElement(actionId);
+            foreach (BaseInput input in inputs)
+                if (input is ButtonInput button && button.ElementId == element)
+                    return button.IsHeld;
             return false;
         }
 

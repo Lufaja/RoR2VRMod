@@ -133,6 +133,20 @@ namespace VRMod
         private static TMP_SpriteAsset glyphsSpriteAsset;
 
         private static string[] currentGlyphs;
+        private static ulong? glyphDeviceId;
+        private static readonly string[] frameGlyphs = CreateFrameGlyphs();
+
+        private static string[] CreateFrameGlyphs()
+        {
+            // The bundled artwork predates Frame. Use its real button labels instead of
+            // displaying Quest B/X/Y artwork for different physical buttons.
+            string[] glyphs = (string[])standardGlyphs.Clone();
+            glyphs[7] = glyphs[18] = "[Y]";
+            glyphs[12] = glyphs[19] = "[D-pad down]";
+            glyphs[15] = glyphs[16] = "[D-pad up: hold]";
+            glyphs[24] = glyphs[32] = "[D-pad up]";
+            return glyphs;
+        }
 
         private static bool isUsingMotionControls;
 
@@ -155,7 +169,7 @@ namespace VRMod
         {
             InputDevice controllerDevice = InputDevices.GetDeviceAtXRNode(XRNode.RightHand);
 
-            if (controllerDevice == null || controllerDevice.name == null)
+            if (!controllerDevice.isValid || controllerDevice.name == null || glyphDeviceId == controllerDevice.deviceId)
                 return;
 
             string controllerName = controllerDevice.name.ToLower();
@@ -163,14 +177,16 @@ namespace VRMod
             if (controllerName == "")
                 return;
 
-            if (controllerName.Contains("htc vive controller"))
+            if (controllerName.Contains("steam frame"))
+                currentGlyphs = frameGlyphs;
+            else if (controllerName.Contains("htc vive controller"))
                 currentGlyphs = viveGlyphs;
             else if (controllerName.Contains("windows mr controller"))
                 currentGlyphs = wmrGlyphs;
             else
                 currentGlyphs = standardGlyphs;
 
-            RoR2Application.onUpdate -= FindControllerType;
+            glyphDeviceId = controllerDevice.deviceId;
         }
 
         /// <summary>
@@ -184,7 +200,7 @@ namespace VRMod
         internal static void RegisterFallbackBindings(IEnumerable<ActionElementMap> maps)
         {
             foreach (ActionElementMap m in maps)
-                if (m != null && !fallbackActionToElement.ContainsKey(m.actionId))
+                if (m != null && m.elementIdentifierId != Inputs.GameplayBindingCatalog.AutoSprintElement)
                     fallbackActionToElement[m.actionId] = m.elementIdentifierId;
         }
 
@@ -215,7 +231,8 @@ namespace VRMod
 
                 if (Glyphs.resultsList.Count() > 0)
                 {
-                    ActionElementMap displayedMap = Glyphs.resultsList.First();
+                    ActionElementMap displayedMap = Glyphs.resultsList.FirstOrDefault(m => m.elementIdentifierId != Inputs.GameplayBindingCatalog.AutoSprintElement);
+                    if (displayedMap == null) return orig(eventSystem, actionName, axisRange, currentInputSource, useLastActiveControllerOnly);
                     if (displayedMap.elementIdentifierId > 0 && displayedMap.elementIdentifierId < currentGlyphs.Length)
                     {
                         return currentGlyphs[displayedMap.elementIdentifierId];

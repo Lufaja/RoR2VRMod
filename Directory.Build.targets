@@ -1,0 +1,7 @@
+<Project>
+  <!-- These inherited IDE projects contain historical NuGet references. Never accidentally
+       ship a build against those versions; the portable build validates supplied game refs. -->
+  <Target Name="UseVersionedPortableBuild" BeforeTargets="PrepareForBuild" Condition="'$(DesignTimeBuild)' != 'true'">
+    <Error Text="Use python3 build-tools/build.py (see build-tools/README.md). These inherited .csproj files are for source browsing; their historical NuGet versions are not a validated game build." />
+  </Target>
+</Project>

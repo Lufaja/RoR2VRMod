@@ -36,5 +36,11 @@ namespace VRMod
         }
 
         internal CameraRigController cameraRigController { get; private set; }
+
+        private void OnDestroy()
+        {
+            if (instance == this)
+                instance = null;
+        }
     }
 }

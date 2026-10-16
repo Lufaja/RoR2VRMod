@@ -1,0 +1,43 @@
+name: Source and isolated logic
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-checks:
+    name: Source checks (no game or headset)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PWSH: pwsh
+      RISKOFVR_PWSH: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Require PowerShell and Roslyn
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if (-not (Test-Path (Join-Path $PSHOME 'Microsoft.CodeAnalysis.CSharp.dll'))) { throw 'Bundled Roslyn is required' }
+          $PSVersionTable.PSVersion.ToString()
+      - name: C# syntax (not a game build)
+        run: pwsh -NoProfile -File tests/check-csharp-syntax.ps1
+      - name: Input contracts with isolated XR and Rewired doubles
+        run: pwsh -NoProfile -File tests/input/run.ps1
+      - name: Native installer and crash recovery
+        run: pwsh -NoProfile -File tests/runtime_safety/run.ps1
+      - name: Native restore and C# ledger interoperability
+        run: python3 -m unittest discover -s tests/runtime_safety -v
+      - name: Build tooling and package safety
+        run: python3 -m unittest discover -s tests/build_tools -v
+      - name: Generate command plan without game files
+        run: python3 build-tools/build.py plan > "$RUNNER_TEMP/riskofvr-build-plan.json"
+      - name: Check patch whitespace
+        run: git diff --check

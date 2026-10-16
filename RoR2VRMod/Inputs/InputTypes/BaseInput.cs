@@ -33,5 +33,7 @@ namespace VRMod.Inputs
         }
 
         internal abstract void UpdateValues(Rewired.CustomController vrControllers);
+
+        internal virtual void ResetState() { }
     }
 }

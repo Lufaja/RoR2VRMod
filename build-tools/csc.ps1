@@ -1,7 +1,8 @@
 # Minimal csc-compatible driver on top of the Roslyn bundled with PowerShell 7.
 # Usage: pwsh -File csc.ps1 @response.rsp   (or plain csc-style args)
 $ErrorActionPreference = 'Stop'
-$pwshDir = Split-Path -Parent (Get-Process -Id $PID).Path
+$pwshDir = $PSHOME
+if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7 or newer is required.' }
 Add-Type -Path (Join-Path $pwshDir 'Microsoft.CodeAnalysis.dll') | Out-Null
 Add-Type -Path (Join-Path $pwshDir 'Microsoft.CodeAnalysis.CSharp.dll') | Out-Null
 
@@ -20,7 +21,7 @@ foreach ($a in $args) {
                 if ($ch -eq '"') {
                     $inQuote = -not $inQuote
                     [void]$sb.Append($ch)
-                } elseif ($ch -eq ' ' -and -not $inQuote) {
+                } elseif ([char]::IsWhiteSpace($ch) -and -not $inQuote) {
                     if ($sb.Length -gt 0) { $argv.Add($sb.ToString()); [void]$sb.Clear() }
                 } else {
                     [void]$sb.Append($ch)

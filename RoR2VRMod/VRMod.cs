@@ -14,7 +14,7 @@ using UnityEngine.XR.OpenXR.Features;
 [assembly: SecurityPermission(SecurityAction.RequestMinimum, SkipVerification = true)]
 namespace VRMod
 {
-    [BepInPlugin("com.DrBibop.VRMod", "Resurrected VRMod", "1.0.6")]
+    [BepInPlugin("com.DrBibop.VRMod", "Risk of VR", "1.1.0")]
     [BepInDependency("com.Moffein.BanditTweaks", BepInDependency.DependencyFlags.SoftDependency)]
     public class VRMod : BaseUnityPlugin
     {
@@ -32,6 +32,8 @@ namespace VRMod
             VRAssetBundle = AssetBundle.LoadFromMemory(Properties.Resources.vrmodassets);
 
             ModConfig.Init();
+            StereoProjectionFix.Configure(Config);
+            RuntimeDiagnostics.Init(Config);
             // 2.23.40: Enforcer holds the shield in the RIGHT hand and the shotgun in the LEFT, so his
             // triggers and grips are swapped left<->right: right trigger = secondary, left trigger =
             // primary, left grip = special, right grip = utility.
@@ -142,6 +144,7 @@ namespace VRMod
             StaticLogger.LogInfo($"InitVR: OpenXR display running={displayRunning}, {xrSubsystems.Count} XR input subsystem(s).");
             StaticLogger.LogInfo($"[VR config] SeatedMode(config)={ModConfig.SeatedMode.Value} -> forcing device origin + eye level; ControllerAngleOffset={ModConfig.ControllerAngleOffset.Value}; IntroCameraYaw={ModConfig.IntroCameraYaw.Value}; MotionControls={ModConfig.InitialMotionControlsValue}; FirstPerson={ModConfig.InitialFirstPersonValue}");
             global::VRMod.Inputs.VRInputDiagnostics.LogInteractionProfiles("after InitVR");
+            RuntimeDiagnostics.LogRuntime();
         }
 
         private static void ShutdownXR()

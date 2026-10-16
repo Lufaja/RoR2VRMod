@@ -577,6 +577,7 @@ namespace VRMod
 
         private static void DestroyPickerPanelCanvas(On.RoR2.PickupPickerController.orig_OnDisplayEnd orig, PickupPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
         {
+            RuntimeDiagnostics.PickerEvent(false, self, localUser);
             orig(self, networkUIPromptController, localUser, cameraRigController);
             if (pickerCanvas) GameObject.Destroy(pickerCanvas);
         }
@@ -584,6 +585,7 @@ namespace VRMod
         private static void MovePickerPanelToWorld(On.RoR2.PickupPickerController.orig_OnDisplayBegin orig, PickupPickerController self, NetworkUIPromptController networkUIPromptController, LocalUser localUser, CameraRigController cameraRigController)
         {
             orig(self, networkUIPromptController, localUser, cameraRigController);
+            RuntimeDiagnostics.PickerEvent(true, self, localUser);
 
             if (self.panelInstance && GetUICamera())
             {

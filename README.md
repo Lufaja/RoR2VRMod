@@ -1,167 +1,55 @@
-# Resurrected VRMod — Risk of Rain 2 VR mod, unofficial build by Blowntobytes
+# Risk of VR
 
-Play Risk of Rain 2 in virtual reality with motion controls, on the **current Steam version of the game**.
+Eigen Steam Frame-fork van [Resurrected VRMod](https://github.com/Blowntobytes/RoR2VRMod), voortbouwend op [DrBibops RoR2VRMod](https://github.com/DrBibop/RoR2VRMod). Bron: [Lufaja/RoR2VRMod](https://github.com/Lufaja/RoR2VRMod).
 
-This is an unofficial, community-maintained rebuild of [DrBibop's RoR2VRMod](https://github.com/DrBibop/RoR2VRMod). The original mod stopped working after the game moved to a newer Unity engine; this build ports it to that engine, switches it to OpenXR, and fixes the things that broke along the way. All credit for the mod itself goes to DrBibop and the original contributors (see Credits). Released under the same MIT license.
+**Status: experimentele bronversie 1.1.0.** De volledige mod is nog niet gebouwd tegen jouw gamebestanden en niet getest op Steam Machine/Steam Frame. De oorspronkelijke auteurs' compatibiliteitsclaims gelden niet automatisch als bewijs voor deze fork. Er is geen gepubliceerde, als speelbaar geverifieerde release van deze versie.
 
-## Installation 
+## Bedoelde opstelling
 
+Steam Machine met SteamOS → Windows-versie van RoR2 onder Proton → SteamVR/OpenXR → Steam Frame. Installeren via **r2modman**, met het standaard Thunderstore-zipformaat. Deze laptop is alleen de ontwikkelmachine.
 
-**With r2modman / Thunderstore Mod Manager (recommended):** install it from Thunderstore with the "Install with Mod Manager" button, then start the game with "Start modded". If you previously imported a pre-release zip of this mod as a local mod (or still have DrBibop's original VRMod installed), uninstall that entry first — two copies of the mod must never be installed together.
+Valve noemt Steam Machine/Linux-streaming momenteel nog niet volledig ondersteund. Begin met Desktop Mode/SteamVR Beta volgens [Valve Support](https://help.steampowered.com/en/faqs/view/2668-0B6E-79E0-A85B). Volg [de installatie- en herstelhandleiding](docs/STEAM-MACHINE.md); een broncode-zip is geen modpakket.
 
-**[Manual install]**  Install [BepInExPack](https://thunderstore.io/package/bbepis/BepInExPack/) (which brings RoR2BepInExPack, FixPluginTypesSerialization and BepInEx GUI with it) and [HookGenPatcher](https://thunderstore.io/package/RiskofThunder/HookGenPatcher/). Then download the [Latest zip](https://github.com/Blowntobytes/RoR2VRMod/releases/latest) — on that page, open **Assets** and click `Blowntobytes-Resurrected_VRMod-<version>.zip`. Do not use GitHub's green "Code" button; that gives you the source code, not the mod.
+## Wijzigingen
 
-Then in r2modman / Thunderstore Mod Manager: Select *Settings → Profile → Import local mod* → select the zip in Downloads → *Import local mod* and start the game with **Start modded**.
+- Instelbare gameplaybindings in de VR-tab/configuratie, met behoud van menu- en systeemknoppen en oorspronkelijke standaardbindings.
+- Eenmalige Steam Frame seated-preset: rechtshandig, zittend en 30° snap turn. Bestaande instellingen worden niet bij elke start overschreven. Vloeiend draaien en linkshandigheid blijven instelbaar.
+- Native Steam Frame-controllerprofiel alleen wanneer de OpenXR-extensie actief is; Touch-compatibiliteit blijft beschikbaar.
+- Autosprint gebruikt een aparte virtuele input en drukt bij vliegende bodies geen stickklik meer in. Dit richt zich op [de Operator-drone-melding](https://github.com/Blowntobytes/RoR2VRMod/issues/3); een hardwarehertest blijft nodig.
+- Verbeterd camerabeheer, herstel van projectiematrices en optionele stereodiagnostiek. Dit bewijst niet dat [DrBibops camerablokkade #71](https://github.com/DrBibop/RoR2VRMod/issues/71) is opgelost.
+- Native XR-installatie met oorspronkelijke backups, hashes, hersteljournal en een herstelhulpmiddel.
+- Portable bouwketen met vastgelegde XR-bronnen, referentiecontrole en pakketcontrole die onvolledige of verouderde builds weigert.
 
-The first launch copies the OpenXR native files into place; if the headset stays black the very first time, simply launch again. Pick up both controllers before the title screen so the runtime wakes them.
+De zittende Device-origin blijft de aanbevolen route. De bestaande standing-instelling is experimenteel; echte floor-gekalibreerde roomscale is niet geïmplementeerd/gevalideerd.
 
+Foveated **streaming** wordt door Steam verzorgd. Foveated **rendering** is niet geïmplementeerd; zie [de haalbaarheidsnotitie](docs/FOVEATION.md). De mod toont geen fictieve foveatie- of streamingstatus.
 
-- Source code: https://github.com/Blowntobytes/RoR2VRMod
-- Original mod: https://github.com/DrBibop/RoR2VRMod
-- Found a bug? Open an issue on the GitHub page above and attach your `BepInEx/LogOutput.log`.
+## Bouwen en controleren
 
-## Multiplayer
+Zie [build-tools/README.md](build-tools/README.md) voor Python 3.9+, PowerShell 7, locked XR-bronnen en lokale game-/toolreferenties. De bestaande `.csproj`-bestanden zijn alleen voor broncodebrowsing en blokkeren een verouderde MSBuild-build; gebruik de gedocumenteerde Python-bouwroute.
 
-Only VR players need the mod. You can play with vanilla (non-VR) players.
+```sh
+python3 build-tools/build.py preflight
+python3 build-tools/build.py plan
+python3 -m unittest discover -s tests/build_tools -v
+pwsh -NoProfile -File tests/check-csharp-syntax.ps1
+pwsh -NoProfile -File tests/input/run.ps1
+pwsh -NoProfile -File tests/runtime_safety/run.ps1
+RISKOFVR_PWSH=pwsh python3 -m unittest discover -s tests/runtime_safety -v
+```
 
-## Requirements
+Preflight mag niet slagen zonder de echte referenties. Pure-logica- en syntaxtests vervangen geen volledige compilatie of in-game test. [Verificatiestatus en hardwarechecklist](docs/VERIFICATION.md) onderscheiden die bewijzen.
 
-- Risk of Rain 2 (current Steam build).
-- A PC VR headset with an **OpenXR** runtime: SteamVR (any SteamVR headset, Index, Vive, Pico/Quest via Steam Link, Virtual Desktop, ALVR), the Meta/Oculus PC runtime (Quest Link / Air Link), or Windows Mixed Reality.
-- [BepInExPack](https://thunderstore.io/package/bbepis/BepInExPack/) with its own dependencies ([RoR2BepInExPack](https://thunderstore.io/package/RiskofThunder/RoR2BepInExPack/), [FixPluginTypesSerialization](https://thunderstore.io/package/RiskofThunder/FixPluginTypesSerialization/), BepInEx GUI) and [HookGenPatcher](https://thunderstore.io/package/RiskofThunder/HookGenPatcher/). The mod manager installs all of these for you. FixPluginTypesSerialization is required: without it the game starts in flat screen.
+De game-/referentieassemblies blijven lokaal en worden niet gecommit of verpakt. Een geslaagde volledige build is vereist voordat `build.py package` een zip maakt. Er wordt niet automatisch naar Thunderstore gepubliceerd.
 
-### Which headsets work, and the one setting that matters
+## Issues, configuratie en compatibiliteit
 
-The mod does not care which headset you own — it asks Windows for whatever OpenXR runtime is currently active. So the only thing to get right is that the runtime matching your headset is the active one:
+[Het issueoverzicht](docs/UPSTREAM-ISSUES.md) bevat de vier recente forkmeldingen en relevante originele issues, met reproduceerstappen en bewijsstatus. Itemopname, scrappermenu's en Bandit-handrotatie blijven expliciet onbevestigd.
 
-| Headset | Set this as the active OpenXR runtime |
-|---|---|
-| Quest 2/3/Pro over Virtual Desktop | Virtual Desktop streamer → *Streaming* → OpenXR runtime **VDXR** |
-| Quest over Link / Air Link, Rift CV1, Rift S | Oculus (Meta) PC app → *Settings > General* → **Set Oculus as active OpenXR runtime** |
-| Valve Index, HTC Vive, Bigscreen Beyond, other SteamVR headsets(unconfirmed) | SteamVR → *Settings > OpenXR* → **Set SteamVR as OpenXR runtime** |
-| Windows Mixed Reality, HP Reverb G2 | Mixed Reality Portal / OpenXR Tools for WMR → set WMR as the runtime |
+De interne plugin-ID blijft `com.DrBibop.VRMod`; VRAPI blijft behouden. Installeer daarom nooit tegelijk deze fork, Resurrected VRMod en de originele VRMod. Gebruik een apart profiel en bewaar je bestaande configuratie. Gameplaybindings, comfortinstellingen en de seated-preset staan in `BepInEx/config/VRMod.cfg`. De nieuwe cameraworkaround en diagnostiek staan apart in `BepInEx/config/com.DrBibop.VRMod.cfg`.
 
-Only one runtime can be active at a time, so switching headsets means flipping this setting. Controller bindings are registered for Oculus Touch, Quest Touch Pro, Valve Index, HTC Vive, HP Reverb G2, WMR and the generic KHR profile, so the button layout below applies on all of them (Index/Beyond knuckles: the "grip" is the squeeze).
+`[Diagnostics] Runtime summary` logt versies/runtime bij opstarten. `Picker events` logt optioneel het openen/sluiten van wereldkeuzemenu's. `StereoCamera` logt optioneel begrensde informatie per oog. Stuur geen log met persoonlijke paden publiek zonder dit eerst na te kijken.
 
-Turn off "Use Desktop Game Theatre while SteamVR is active" in the game's Steam properties.
+## Credits en licenties
 
-Do **not** turn on the old "Use Oculus mode" config option — it is a leftover from the pre-OpenXR mod and does nothing in this build.
-
-## Controls
-
-Bindings are built in (this build does not use the SteamVR binding editor). Button names follow the Oculus/Quest layout; on Index, Vive and WMR controllers the equivalent buttons are used.
-
-**Gameplay** (right-handed; turn on "Left dominant hand" in the VR settings to swap the skill buttons)
-
-| Input | Action |
-|---|---|
-| Left stick | Move |
-| Right stick | Turn / look |
-| Right trigger | Primary skill |
-| Left trigger | Secondary skill |
-| Left grip | Utility skill |
-| Right grip | Special skill |
-| A | Interact |
-| B | Jump |
-| X | Use equipment |
-| Y (tap) | Pause menu |
-| Y (hold) | Scoreboard / profile |
-| Left stick click | Sprint (or turn on **Auto Sprint** in the VR settings to sprint automatically) |
-| Right stick click | Ping |
-
-**Key items and elements (Hallowed Concepts content)** — the left grip doubles as a modifier while you are carrying a key item. Hold it and press another button; the grip's own skill (Utility) then fires when you *release* the grip, and only if no combo was used during the hold, so nothing goes off by accident. Without a key item the grip, A and stick behave exactly as normal.
-
-| Input | Action |
-|---|---|
-| Left grip (hold) + A | Use the key item |
-| Left grip (hold) + right stick left | Previous element |
-| Left grip (hold) + right stick right | Next element |
-| Left grip (release, no combo used) | Utility skill, as normal |
-
-While the grip is held, A does not interact and the right stick does not turn. The wrist panel on your left hand shows the key item you are carrying and reminds you of the buttons.
-
-**HTC Vive / original Windows Mixed Reality wands** — these have no A/B/X/Y, so the trackpad clicks and menu buttons stand in (HP Reverb G2 has real A/B buttons and uses the normal layout):
-
-| Wand input | Acts as |
-|---|---|
-| Right trackpad click, lower half | A (interact / confirm; key item = left grip + this) |
-| Right trackpad click, upper half | B (jump / back) |
-| Left trackpad click, upper half | X (equipment / ready) |
-| Left trackpad click, lower half | Sprint (left stick click) |
-| Right menu button | Ping (right stick click) |
-| Left menu button | Y (tap = pause menu, hold = scoreboard) |
-| Right trackpad swipe left / right while holding left grip | Previous / next element |
-
-**Steam Frame** — mapped like a Quest/Touch controller: right A = A, right Y = B, left D-pad down = X, left D-pad up = Y, left View button = menu; sticks, triggers and grips are the same.
-
-**Enforcer** — this survivor alone has the grips and triggers swapped so the shield is on the shield hand and the shotgun on the gun hand:
-
-| Input | Action |
-|---|---|
-| Left trigger | Primary (shotgun) |
-| Right trigger | Secondary |
-| Left grip | Special |
-| Right grip | Utility (Protect and Serve — raise the shield) |
-
-The shield is only drawn while raised; its transparency is the **Enforcer: Shield opacity** slider in the VR settings. Left/right dominant hand still applies on top of this.
-
-**Menus** — the controllers act as a gamepad, and every on-screen prompt names the button that really does it (A is A, the trigger glyph means the trigger):
-
-| Input | Action |
-|---|---|
-| Left stick | Move the selection |
-| A | Confirm |
-| B | Back / cancel |
-| X | Ready / alternate confirm |
-| Left trigger | Back to the survivor grid (previous page) |
-| Right trigger | Forward to the panels on the right — expansions / DLC, artifacts (next page) |
-| Left grip / right grip | Previous / next tab in the settings panel. Nothing anywhere else — they cannot trigger anything by accident on the character select screen |
-| Y | Open / close the pause menu, skip the intro cutscene |
-
-On the character select screen, A picks the highlighted survivor; the **Ready** button then becomes the highlighted control, so press A again (or move to it with the stick) to ready up. One press never does both. Up/down on the rules panel walks Difficulty → Expansions → Artifacts; A on the Expansions or Artifacts header opens that picker.
-
-**Typing (VR keyboard):** move the highlight onto any text box (game browser search and filters, host name, password, tags, the password box on a game's info panel) and press A. A keyboard appears below the menu: left stick moves over the keys, A types, X is backspace, Y is space, B closes and keeps the text, and DONE confirms the box the way Enter does. A bright amber frame always shows which menu control is selected.
-
-**Chat:** click the left stick on the character select screen (or in a run while the game is paused) to open the keyboard on the chat box. B or DONE sends the message; B with nothing typed just closes it. The highlight returns to the menu afterwards.
-
-## VR settings
-
-Open the in-game *Settings* and pick the **VR** tab (the same options are in `BepInEx/config/VRMod.cfg`, editable from the mod manager's Config editor). Notable options in this build:
-
-- **Auto Sprint** — *On by default* - sprint automatically whenever you push the left stick, and re-engage on its own after anything cancels the sprint (firing a skill, taking a hit).
-- **Highlight chests** — Chest, teleporters, shrines will have a yellow glow for easy locating.
-- **Item hints** — *On by default* When pinging an item or scrolling through items in a command run, item name and info will be included on your left wrist or at the bottom of the item panel.
-- **Seated mode** — *On by default* Because who wants to stand when playing this game? You can disable it to switch to standing mode but you'll have to restart the game to apply.
-- **Hidden item displays** — items whose 3D model is hidden on your own character in VR (default: Kinetic Dampener). Comma-separated, matched by in-game name; the items still work.
-- **Menu selection frame** / **VR keyboard** / **VR chat (left stick click)** — *On by default* the amber selection frame, the on-screen keyboard and the chat shortcut; each can be switched off.
-- **Enforcer: Shield opacity** — how solid Enforcer's shield looks while shielding (0 = invisible, 100 = solid).
-- **Runtime hands** — the hand, aim and held-weapon positions for the Seekers of the Storm, Alloyed Collective and Hallowed Concepts survivors are built into the mod and are no longer in the config file; there is nothing to tune. Older config files are cleaned up automatically.
-
-## Known issues in this build
-
-- Hand models are not shown inside menus (menus are navigated like a gamepad). Hands and weapons work normally in a run.
-- The hands for the Seekers of the Storm, Alloyed Collective and Hallowed Concepts survivors are generated from the character model at runtime rather than hand-made, so they are functional rather than pretty. Their positions are fixed in the mod and cannot be adjusted by players.
-- The loading screen can sit at 0 % for about 20 seconds before it starts counting. This comes from the FixPluginTypesSerialization dependency on the current game build, not from this mod; it happens with the VR mod disabled too.
-- Playing with vanilla players: the October 2026 game build loads extra unused characters in any modded game, which broke multiplayer with unmodded friends (they could not see you, or got stuck in the pod). This mod corrects that, so with the VR mod installed you can play with vanilla players again; without it, any other mod on its own still has the problem.
-- Bhaptics / Shockwave haptics suit support is still compiled in but has not been tested with this build.
-- Character support from [VRAPI](https://thunderstore.io/package/DrBibop/VRAPI/) (custom survivors with VR hands) is included unchanged and untested.
-
-The mod's internal plugin ID is still `com.DrBibop.VRMod`, so other mods that depend on the VR mod or VRAPI keep working.
-
-## Building from source
-
-The original Visual Studio project files are kept, but this build was produced with a self-contained, offline toolchain that needs only PowerShell 7 — see [`build-tools/README.md`](build-tools/README.md) for the reference-assembly setup and the exact build commands. The packaged zip layout (`manifest.json`, `README.md`, `CHANGELOG.md`, `icon.png`, `plugins/`, `patchers/`) is the standard Thunderstore format.
-
-## Credits
-
-**DrBibop:** original mod and patcher programmer, animator\
-**MrPurple6411:** patcher programmer\
-**dotflare:** 3D artist\
-**Ncognito:** 3D artist\
-**eliotttate:** original creator, code assist\
-**HutchyBen:** code assist\
-**AmadeusMop:** code assist\
-**Daerst:** fixed the biggest and oldest bug of the original mod\
-**laila, HutchyBen, Skarl1n, Geb, Popzix, Terrorcotta211:** controller support for the original mod\
-**Blowntobytes:** current-game-version port, OpenXR rebuild and maintenance of this fork\
-The `ParentCamera.projectionMatrix = _childCamera.GetStereoProjectionMatrix(eye)` stereo fix came from a community report.
+DrBibop en oorspronkelijke contributors maakten de VR-mod. Blowntobytes verzorgde de OpenXR-voortzetting. Deze fork voegt Steam Frame-gerichte aanpassingen en ontwikkel-/herstelgereedschap toe. De oorspronkelijke MIT-notices blijven staan; zie [LICENSE.md](LICENSE.md) en [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md). De upstream-releasegeschiedenis blijft onder onze nieuwe vermelding in [CHANGELOG.md](CHANGELOG.md).

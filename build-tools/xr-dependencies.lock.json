@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "unity": "2021.3.33f1",
+  "target": "Windows x64 / Mono",
+  "packages": [
+    {
+      "name": "com.unity.inputsystem",
+      "version": "1.6.3",
+      "repository": "https://github.com/needle-mirror/com.unity.inputsystem.git",
+      "commit": "c4761112d2b4b16466359827f5bd5636b8a736b8",
+      "source": "InputSystem",
+      "assembly": "Unity.InputSystem.dll",
+      "defines": [
+        "UNITY_INPUT_SYSTEM_ENABLE_VR",
+        "UNITY_INPUT_SYSTEM_ENABLE_XR",
+        "UNITY_INPUT_SYSTEM_ENABLE_PHYSICS",
+        "UNITY_INPUT_SYSTEM_ENABLE_PHYSICS2D",
+        "UNITY_INPUT_SYSTEM_ENABLE_UI"
+      ],
+      "references": [],
+      "license_files": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "name": "com.unity.xr.management",
+      "version": "4.4.0",
+      "repository": "https://github.com/needle-mirror/com.unity.xr.management.git",
+      "commit": "54ccdacf626eca667b4e5dc80b218ee5c4d7f3a5",
+      "source": "Runtime",
+      "assembly": "Unity.XR.Management.dll",
+      "defines": [],
+      "references": [],
+      "license_files": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "name": "com.unity.xr.core-utils",
+      "version": "2.1.1",
+      "repository": "https://github.com/needle-mirror/com.unity.xr.core-utils.git",
+      "commit": "3e74e409c4939949f435637cdad95b8bfcfc142c",
+      "source": "Runtime",
+      "assembly": "Unity.XR.CoreUtils.dll",
+      "defines": [
+        "INCLUDE_PHYSICS_MODULE",
+        "INCLUDE_UGUI",
+        "INCLUDE_INPUT_SYSTEM",
+        "INCLUDE_LEGACY_INPUT_HELPERS"
+      ],
+      "references": [
+        "Unity.InputSystem.dll"
+      ],
+      "license_files": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "name": "com.unity.xr.openxr",
+      "version": "1.9.1",
+      "repository": "https://github.com/needle-mirror/com.unity.xr.openxr.git",
+      "commit": "fcd2b5df7b5a247515c8c23b4bb8889612e31c00",
+      "source": "Runtime",
+      "assembly": "Unity.XR.OpenXR.dll",
+      "defines": [
+        "INPUT_SYSTEM_POSE_VALID",
+        "INPUT_SYSTEM_BINDING_VALIDATOR"
+      ],
+      "references": [
+        "Unity.InputSystem.dll",
+        "Unity.XR.Management.dll",
+        "Unity.XR.CoreUtils.dll"
+      ],
+      "license_files": [
+        "LICENSE.md",
+        "Third Party Notices.md"
+      ]
+    }
+  ],
+  "native_files": [
+    {
+      "package": "com.unity.xr.openxr",
+      "source": "Runtime/windows/x64/UnityOpenXR.dll",
+      "resource": "VREnabler/Plugins/UnityOpenXR.dll",
+      "git_blob": "3965709bcf07f564227f806a1171a32e939f12b8",
+      "sha256": "5cff76929fdcdeb040775739f513bb761db4344d9110f51c45715ba69d5af4a6"
+    },
+    {
+      "package": "com.unity.xr.openxr",
+      "source": "RuntimeLoaders/windows/x64/openxr_loader.dll",
+      "resource": "VREnabler/Plugins/openxr_loader.dll",
+      "git_blob": "e50949bd669122a6dffb9fbb2f2aeb655b512597",
+      "sha256": "c008f1f429eb89ad1ebb959a74425c1b8df78abe6b1a08287ed44900d49881d3"
+    }
+  ]
+}

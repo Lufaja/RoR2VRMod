@@ -151,9 +151,11 @@ namespace VRMod
 
                 On.RoR2.CameraRigController.OnDestroy += (orig, self) =>
                 {
+                    VRCameraWrapper wrapper = VRCameraWrapper.instance;
+                    bool ownsWrapper = wrapper && wrapper.cameraRigController == self;
                     orig(self);
-                    if (VRCameraWrapper.instance)
-                        GameObject.Destroy(VRCameraWrapper.instance.gameObject);
+                    if (ownsWrapper && wrapper)
+                        GameObject.Destroy(wrapper.gameObject);
                 };
 
                 On.RoR2.CharacterModel.SetEquipmentDisplay += HideFloatingEquipment;
@@ -195,9 +197,10 @@ namespace VRMod
 
         private static void AddStereoProjectionFix(On.RoR2.SceneCamera.orig_Awake orig, SceneCamera self)
         {
-            self.gameObject.AddComponent<StereoProjectionFix>();
-
             orig(self);
+
+            if (!self.GetComponent<StereoProjectionFix>())
+                self.gameObject.AddComponent<StereoProjectionFix>();
         }
 
         private static void RemoveDepthOfField(Action<PostProcessProfile> orig, PostProcessProfile self)
