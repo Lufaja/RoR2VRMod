@@ -1,8 +1,9 @@
 # Verificatiestatus
 
-Bronversie 1.1.0, ontwikkelcontrole op 16 oktober 2026. Deze status geldt voor
-de aangepaste broncode; er is nog geen volledige modbuild, Steam Machine-test
-of Steam Frame-headsettest. De laptop wordt alleen voor ontwikkeling gebruikt.
+Versie 1.1.0, ontwikkelcontrole op 16 oktober 2026. De volledige broncompilatie
+is geslaagd tegen publieke referentiepackages. Er is nog geen game-launch,
+Steam Machine-test of Steam Frame-headsettest. De laptop is alleen voor
+ontwikkeling en compilatie gebruikt.
 
 ## Lokaal uitvoerbaar zonder game
 
@@ -17,17 +18,41 @@ Steam-profiel, saves of database.
 | Native installatietests | Backups, hashes, crashjournal, herhaalde installatie en geweigerde onveilige writes | Windows/Proton-filesystemgedrag op de host |
 | Hersteltests | Dry-run, herstel, externe wijzigingen, onderbrekingen en echte C#-ledger naar Python | Dat een bestaande gameinstallatie al correct is hersteld |
 | Bouw- en pakkettests | Bronselectie, resource-inbedding, compilatiefoutafhandeling, verse buildregistratie en allowlist | Een succesvolle volledige VRMod-build |
+| Volledige broncompilatie | Alle zeven runtime-DLLs compileren zonder fouten tegen de vastgelegde referenties | Werking in de daadwerkelijk geïnstalleerde game/Proton/headset |
 | Preflight zonder referenties | Ontbrekende echte dependencies worden afgewezen | Werkende gameversie |
 
 Lokaal geslaagd: **89 C#-bronbestanden**, **134 inputasserties**, **11 C#-
-installatietests**, **11 Python-hersteltests** en **20 bouw-/pakkettests**.
-Het plan genereert 31 opdrachten. Preflight weigert de ontbrekende game-/tool-
-referenties en XR-bronnen; pakketvalidatie weigert de ontbrekende volledige build.
+installatietests**, **11 Python-hersteltests** en **28 bouw-/pakkettests**.
+Preflight zonder referenties weigert de ontbrekende dependencies. Pakketvalidatie
+weigert een ontbrekende of verouderde buildregistratie.
 
 De GitHub-workflow **Source and isolated logic** voert deze losse checks uit.
-Een groene workflow betekent nadrukkelijk geen speelbare VR-release.
+Een groene workflow betekent nadrukkelijk geen speelbare VR-release. De aparte
+handmatige workflow **Experimental reference build** voert de volledige
+referentiecompilatie en pakketbouw uit en levert de experimentele import-zip.
 
-## Volledige build: nog nodig
+## Volledige lokale broncompilatie
+
+De canonieke bouwketen heeft Unity.InputSystem, XR.Management, XR.CoreUtils,
+XR.OpenXR, VRPatcher, VRMod en VRAPI met nul compilerfouten gebouwd. Basis:
+`RiskOfRain2.GameLibs 1.5.0-r.1`, UnityEngine.Modules 2021.3.33, de vier locked
+XR-pakketten, legacyinputhelpers 2.1.7, BepInEx/MonoMod en originele haptics-
+referenties uit DrBibops modpakket. De bouwregistratie markeert dit als
+`reference-feed`, `game_runtime_verified: false` en `hardware_tested: false`.
+
+Een lokale kopie van de publieke UnityEngine.UI-referentie kreeg elf herstelde
+methodetoegangsrechten: publieke moddingreferenties botsten met de beschermde
+overrides in officiële Unity-broncode. Er zijn geen types, methoden of bodies
+toegevoegd. Deze referenties worden niet verpakt. Bronversies, transformaties
+en hashes zijn vastgelegd; zie de [bouwdocumentatie](../build-tools/README.md).
+
+De patcher bevat exact de drie verwachte native resources; VRMod bevat de
+verwachte `vrmodassets`-resource. Lengtes en SHA-256-hashes komen met de
+bronbestanden overeen. Beide native DLLs zijn ook
+byte-identiek aan het vastgelegde OpenXR 1.9.1-pakket. Dit is metadata-/byte-
+controle zonder uitvoering van mod- of gamecode.
+
+## Voor gebruik op de eigen host
 
 1. Leg de exacte Steam-gamebuild/Unity-versie vast en kopieer de eigen Managed-
    referenties. Haal de passende BepInEx/MonoMod- en hapticsreferenties op.
@@ -38,7 +63,8 @@ Een groene workflow betekent nadrukkelijk geen speelbare VR-release.
 3. Voer `preflight`, `build` en `validate-package` uit met dezelfde paden.
    Bewaar compileruitvoer en de lokale buildregistratie. Gebruik geen
    synthetische testreferenties als vervanging voor gamebestanden.
-4. Maak pas na een geslaagde volledige build een lokale import-zip via `package`.
+4. Maak na een geslaagde volledige build een lokale import-zip via `package`,
+   of gebruik het met deze bouwketen gemaakte experimentele importpakket.
    Bevestig het zipformaat/dependencies door import in een leeg r2modman-profiel.
    Publiceer geen release als de onderstaande hardwarepoort faalt.
 

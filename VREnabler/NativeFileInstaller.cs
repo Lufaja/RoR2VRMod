@@ -44,7 +44,7 @@ namespace VRPatcher
                 foreach (string relativePath in AllowedPaths) SafePath(relativePath);
                 if (ledger.Disabled)
                 {
-                    log("Native installation disabled by restore-native.py; remove disabled state only when deliberately reinstalling.");
+                    log("Native installation disabled by restore-native.py; retain the ledger/backups and consult the restore instructions before reinstalling.");
                     return;
                 }
                 // Detect external changes in ALL tracked files before starting another write.

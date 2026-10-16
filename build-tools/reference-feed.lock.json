@@ -1,0 +1,126 @@
+{
+  "schema": 1,
+  "purpose": "Public compile references only. No runtime game or hardware verification. Do not package these DLLs.",
+  "packages": [
+    {
+      "package": "BepInEx.BaseLib",
+      "version": "5.4.20",
+      "url": "https://nuget.bepinex.dev/v3/package/bepinex.baselib/5.4.20/bepinex.baselib.5.4.20.nupkg",
+      "archive_sha256": "de7bd7bed7e27f7f92682ea0ad2c1c9ed2740101e1e73f1d43ef0a6fbd615ecd",
+      "extract_prefix": "lib/netstandard2.0/",
+      "destination": "bepinex/BepInEx/core",
+      "filename": "bepinex.baselib.5.4.20.nupkg"
+    },
+    {
+      "package": "BepInEx.Core",
+      "version": "5.4.21",
+      "url": "https://nuget.bepinex.dev/v3/package/bepinex.core/5.4.21/bepinex.core.5.4.21.nupkg",
+      "archive_sha256": "5e6da751ea0a7c4afe9dcc4fbe5aec74a93ae4b49992e051094fc24ed79d408f",
+      "extract_prefix": null,
+      "destination": null,
+      "filename": "bepinex.core.5.4.21.nupkg"
+    },
+    {
+      "package": "HarmonyX",
+      "version": "2.7.0",
+      "url": "https://api.nuget.org/v3-flatcontainer/harmonyx/2.7.0/harmonyx.2.7.0.nupkg",
+      "archive_sha256": "8e3366d6eedbc22cd4280eeb9d3f948c37db474132f8635c8eb0954c46e1efc1",
+      "extract_prefix": "lib/netstandard2.0/",
+      "destination": "bepinex/BepInEx/core",
+      "filename": "harmonyx.2.7.0.nupkg"
+    },
+    {
+      "package": "Mono.Cecil",
+      "version": "0.11.4",
+      "url": "https://api.nuget.org/v3-flatcontainer/mono.cecil/0.11.4/mono.cecil.0.11.4.nupkg",
+      "archive_sha256": "1eb9d1805b0ecdfa805b0d1f5318bfbe4cd977c74c9f9cee79478b41603daafb",
+      "extract_prefix": "lib/netstandard2.0/",
+      "destination": "monomod",
+      "filename": "mono.cecil.0.11.4.nupkg"
+    },
+    {
+      "package": "MonoMod",
+      "version": "22.7.31.1",
+      "url": "https://api.nuget.org/v3-flatcontainer/monomod/22.7.31.1/monomod.22.7.31.1.nupkg",
+      "archive_sha256": "9b48617fc5dedb8277ceaae1206e1e671d99a74ab169f22704c46fbd8c58022a",
+      "extract_prefix": "lib/net452/",
+      "destination": "monomod",
+      "filename": "monomod.22.7.31.1.nupkg"
+    },
+    {
+      "package": "MonoMod.RuntimeDetour",
+      "version": "22.7.31.1",
+      "url": "https://api.nuget.org/v3-flatcontainer/monomod.runtimedetour/22.7.31.1/monomod.runtimedetour.22.7.31.1.nupkg",
+      "archive_sha256": "add8715203eee73f7bb2817716d717817dc93ba9ec747fcca5f217fe41ae5370",
+      "extract_prefix": "lib/net452/",
+      "destination": "monomod",
+      "filename": "monomod.runtimedetour.22.7.31.1.nupkg"
+    },
+    {
+      "package": "MonoMod.RuntimeDetour.HookGen",
+      "version": "22.7.31.1",
+      "url": "https://api.nuget.org/v3-flatcontainer/monomod.runtimedetour.hookgen/22.7.31.1/monomod.runtimedetour.hookgen.22.7.31.1.nupkg",
+      "archive_sha256": "923c4ba94e3f0e9ad5d6fc8f7ef0bb9d34dae9284b4b71c11468835e61c0109c",
+      "extract_prefix": "lib/net452/",
+      "destination": "monomod",
+      "filename": "monomod.runtimedetour.hookgen.22.7.31.1.nupkg"
+    },
+    {
+      "package": "MonoMod.Utils",
+      "version": "22.7.31.1",
+      "url": "https://api.nuget.org/v3-flatcontainer/monomod.utils/22.7.31.1/monomod.utils.22.7.31.1.nupkg",
+      "archive_sha256": "6cbfacc470500c295079cb01dd8a792e325675946fc6f85f7b80f4d7ecbb9495",
+      "extract_prefix": "lib/net452/",
+      "destination": "monomod",
+      "filename": "monomod.utils.22.7.31.1.nupkg"
+    },
+    {
+      "package": "NETStandard.Library.Ref",
+      "version": "2.1.0",
+      "url": "https://api.nuget.org/v3-flatcontainer/netstandard.library.ref/2.1.0/netstandard.library.ref.2.1.0.nupkg",
+      "archive_sha256": "46ea2fcbd10a817685b85af7ce0c397d12944bdc81209e272de1e05efd33c78a",
+      "extract_prefix": "ref/netstandard2.1/",
+      "destination": "refs",
+      "filename": "netstandard.library.ref.2.1.0.nupkg"
+    },
+    {
+      "package": "UnityEngine.Modules",
+      "version": "2021.3.33",
+      "url": "https://api.nuget.org/v3-flatcontainer/unityengine.modules/2021.3.33/unityengine.modules.2021.3.33.nupkg",
+      "archive_sha256": "d32d34526d89958c63220d3a5ce26c5c44c11bfd411a2e1fbc3200088ef160c4",
+      "extract_prefix": "lib/netstandard2.0/",
+      "destination": "refs",
+      "filename": "unityengine.modules.2021.3.33.nupkg"
+    },
+    {
+      "package": "RiskOfRain2.GameLibs",
+      "version": "1.5.0-r.1",
+      "url": "https://nuget.bepinex.dev/v3/package/riskofrain2.gamelibs/1.5.0-r.1/riskofrain2.gamelibs.1.5.0-r.1.nupkg",
+      "archive_sha256": "af2df0cea5c3606270a1ee6fe7fab409b288f48aa96839d9d53da2f62109235a",
+      "extract_prefix": "lib/netstandard2.0/",
+      "destination": "refs",
+      "filename": "riskofrain2.gamelibs.1.5.0-r.1.nupkg"
+    }
+  ],
+  "legacy_input_helpers": {
+    "url": "https://download.packages.unity.com/com.unity.xr.legacyinputhelpers/-/com.unity.xr.legacyinputhelpers-2.1.7.tgz",
+    "filename": "com.unity.xr.legacyinputhelpers-2.1.7.tgz",
+    "sha256": "e780b3b0a21ff3355642e550dc98ca303eadb136caa48e79dad9b4f43fbd1ea0",
+    "revision": "b2024928b8140a10ad43aeb5824d2f08bb8796bc"
+  },
+  "ui_visibility": {
+    "original_sha256": "95201230e4e97ce248c54426f4b3265a311e419e6e3da6e2d84abba57b8226e6",
+    "declarations": "ui-reference-declarations.json"
+  },
+  "haptics": {
+    "url": "https://thunderstore.io/package/download/DrBibop/VRMod/2.9.2/",
+    "filename": "drbibop-vrmod-2.9.2.zip",
+    "sha256": "f4417d1f9a54d67b5c3eb93abe664913192db88a417cf3b8f27ed6cda47af98c",
+    "patcher_entry": "patchers/VRPatcher.dll",
+    "patcher_sha256": "42e84d52095d3ba686cfef1a03441c384a2917abc616e0794c5ac345fc3957a1",
+    "files": {
+      "Bhaptics.Tact.dll": "baa81f951bdd4b975dbfd177f6f558622d501346397160648fbd0eb160570446",
+      "ShockwaveManager.dll": "cf7e819cba60656817d0acc11a4734750aa53572858949100874d9a6be50c815"
+    }
+  }
+}

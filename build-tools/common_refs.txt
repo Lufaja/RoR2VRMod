@@ -10,8 +10,5 @@ ${GAME_MANAGED}/System.Numerics.dll
 ${GAME_MANAGED}/UnityEngine.*Module.dll
 ${GAME_MANAGED}/UnityEngine.dll
 ${GAME_MANAGED}/UnityEngine.UI.dll
-${GAME_MANAGED}/Unity.Collections.dll
-${GAME_MANAGED}/Unity.Mathematics.dll
-${GAME_MANAGED}/Unity.Burst.dll
 ${GAME_MANAGED}/UnityEngine.SpatialTracking.dll
 ${GAME_MANAGED}/UnityEngine.XR.LegacyInputHelpers.dll

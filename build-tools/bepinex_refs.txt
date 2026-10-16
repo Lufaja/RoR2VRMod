@@ -1,5 +1,4 @@
 ${BEPINEX_CORE}/BepInEx.dll
-${BEPINEX_CORE}/BepInEx.Preloader.dll
 ${BEPINEX_CORE}/0Harmony.dll
 ${BEPINEX_CORE}/Mono.Cecil.dll
 ${BEPINEX_CORE}/Mono.Cecil.Rocks.dll

@@ -4,7 +4,7 @@ This is Lufaja/RoR2VRMod, a fork of Blowntobytes/RoR2VRMod v1.0.6, originally by
 
 ## Current scope
 
-- Experimental source version 1.1.0; no completed full game build or Steam Machine/Frame hardware acceptance yet.
+- Experimental version 1.1.0; all seven runtime outputs compiled against documented public RoR2 1.5.0 reference packages. No game launch or Steam Machine/Frame hardware acceptance yet.
 - Target: Windows x64 RoR2 under Steam/Proton on Steam Machine, native SteamVR, streamed to Steam Frame. r2modman handles the Thunderstore package.
 - Keep plugin ID com.DrBibop.VRMod and VRAPI compatibility; never install alongside the other VRMod packages.
 - Read README.md, docs/UPSTREAM-ISSUES.md and docs/VERIFICATION.md before claiming a bug fixed.

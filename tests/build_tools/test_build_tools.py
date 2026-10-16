@@ -192,6 +192,25 @@ class BuildSafetyTests(unittest.TestCase):
                 source.unlink()
                 self.assertTrue(any('Missing locked native DLL' in error for error in build.native_dependency_errors(a)))
 
+    def test_reference_feed_requires_exact_provenance(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            a = build.arguments(['plan', '--game-managed', temp, '--reference-source', 'reference-feed',
+                                 '--reference-provenance', str(root / 'provenance.json')])
+            with self.assertRaisesRegex(ValueError, 'require --reference-provenance'):
+                build.reference_evidence(a)
+            reference = root / 'RoR2.dll'
+            reference.write_bytes(b'disposable metadata fixture')
+            manifest = {'schema': 1, 'kind': 'public-reference-feed', 'sources': [{'url': 'https://example.com/fixture'}],
+                        'files': {'RoR2.dll': build.sha256(reference)}}
+            a.reference_provenance.write_text(json.dumps(manifest))
+            evidence = build.reference_evidence(a)
+            self.assertEqual(evidence['kind'], 'reference-feed')
+            self.assertFalse(evidence['game_runtime_verified'])
+            reference.write_bytes(b'altered reference')
+            with self.assertRaisesRegex(ValueError, 'differ from their provenance'):
+                build.reference_evidence(a)
+
     def test_failed_preflight_invalidates_old_receipt(self):
         with tempfile.TemporaryDirectory() as temp:
             a = build.arguments(['build', '--build-dir', temp])
@@ -248,6 +267,7 @@ class PackagingTests(unittest.TestCase):
 
     def write_receipt(self):
         self.receipt.write_text(json.dumps({'schema': 1, 'inputs': build.snapshot_inputs(self.args),
+                                            'reference_source': build.reference_evidence(self.args),
                                             'outputs': {name: build.sha256(self.args.build_dir / 'out' / name) for name in build.OUTPUTS}}))
 
 

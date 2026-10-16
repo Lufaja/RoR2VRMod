@@ -1,0 +1,66 @@
+name: Experimental reference build
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reference-build:
+    name: Compile and package (game and headset untested)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      PWSH: pwsh
+      RISKOFVR_PWSH: pwsh
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+      - name: Check build tooling
+        run: python3 -m unittest discover -s tests/build_tools -v
+      - name: Fetch locked XR source packages
+        run: python3 build-tools/build.py fetch-xr
+      - name: Prepare documented public references
+        run: python3 build-tools/prepare-reference-feed.py --output build/reference-feed
+      - name: Compile all seven runtime assemblies
+        run: >-
+          python3 build-tools/build.py build
+          --game-managed build/reference-feed/refs --refs build/reference-feed
+          --bepinex-core build/reference-feed/bepinex/BepInEx/core
+          --monomod build/reference-feed/monomod
+          --reference-source reference-feed
+          --reference-provenance build/reference-feed/refs/provenance.json
+      - name: Package only built runtime files and notices
+        run: >-
+          python3 build-tools/build.py package
+          --game-managed build/reference-feed/refs --refs build/reference-feed
+          --bepinex-core build/reference-feed/bepinex/BepInEx/core
+          --monomod build/reference-feed/monomod
+          --reference-source reference-feed
+          --reference-provenance build/reference-feed/refs/provenance.json
+          --zip-path dist/RiskOfVR-1.1.0-experimental.zip
+      - name: Upload experimental import ZIP
+        id: package
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          path: dist/RiskOfVR-1.1.0-experimental.zip
+          archive: false
+          if-no-files-found: error
+          retention-days: 30
+      - name: Record verification boundary
+        env:
+          PACKAGE_URL: ${{ steps.package.outputs.artifact-url }}
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          Path(os.environ['GITHUB_STEP_SUMMARY']).write_text(
+              'Experimental RoR2 1.5.0 reference build. All seven runtime DLLs compiled; '
+              'game launch, Steam Machine/Proton and Steam Frame stereo remain untested. '
+              'Issue #71 is not verified as solved.\n\n'
+              '[Download import ZIP](' + os.environ['PACKAGE_URL'] + ')\n'
+          )
+          PY

@@ -13,7 +13,7 @@ Deze route is experimenteel. [Valve Support](https://help.steampowered.com/en/fa
 1. Installeer [r2modman uit de officiële releases](https://github.com/ebkr/r2modmanPlus/releases) en kies Risk of Rain 2, Steam en een nieuw profiel `RiskOfVR`.
 2. Gebruik de Proton-launchmodus. Laat de manager de profielspecificieke Steam-launchopties genereren; behoud eventuele bestaande opties. Gebruik geen los `proton run`-script.
 3. Installeer `bbepis-BepInExPack-5.4.2122` en `RiskofThunder-HookGenPatcher-1.2.9`, inclusief hun dependencies. Gebruik het profiel niet tegelijk met DrBibop VRMod of Resurrected VRMod: de plugin-ID is bewust hetzelfde.
-4. Zodra een **volledig gebouwde** zip beschikbaar is: Settings → Profile → Import local mod → selecteer de zip. Naam `RiskOfVR`, auteur `Lufaja`, versie `1.1.0`. Een broncode-download van GitHub is geen installeerbare mod.
+4. Download de import-zip uit een geslaagde **Experimental reference build** onder GitHub Actions, of gebruik de lokaal gebouwde zip. In r2modman: Settings → Profile → Import local mod → selecteer `RiskOfVR-1.1.0-experimental.zip`. Naam `RiskOfVR`, auteur `Lufaja`, versie `1.1.0`. Een broncode-download van GitHub is geen installeerbare mod. Het importpakket is gecompileerd maar nog niet op de game/headset getest.
 5. Start SteamVR en de Frame-stream eerst. Start RoR2 met de gemodificeerde launchopties vanuit r2modman/Steam. De Windows-game en Windows-XR-DLLs draaien onder Proton; plaats hier geen Linux `.so`-bestanden in.
 6. Controleer `BepInEx/LogOutput.log` in het profiel. Lees de runtime-/controllerregels en installatiefouten. Bij zwart beeld niet eindeloos opnieuw starten: vergelijk eerst met de werkende baseline en controleer native bestanden/runtime.
 
@@ -28,11 +28,13 @@ de nieuwe camera-/diagnostiekopties in `BepInEx/config/com.DrBibop.VRMod.cfg`.
 
 Een apart profiel is geen volledige isolatie: de patcher plaatst twee XR-DLLs en één subsystemmanifest in `Risk of Rain 2_Data`. De originele bestanden en hashregistratie staan onder `.vrmod-native` in die map. Bewaar die directory.
 
-Sluit de game en schakel de mod/patcher in r2modman uit voordat je terugdraait:
+Sluit de game en schakel de mod/patcher in r2modman uit voordat je terugdraait.
+Pak dezelfde import-zip uit in een aparte werkmap en open daar een terminal;
+de onderstaande relatieve scriptnaam verwijst naar die uitgepakte map.
 
 ```sh
 python3 tools/restore-native.py --game-data '/pad/naar/Risk of Rain 2/Risk of Rain 2_Data'
 python3 tools/restore-native.py --game-data '/pad/naar/Risk of Rain 2/Risk of Rain 2_Data' --apply
 ```
 
-De eerste opdracht toont alleen wat hersteld wordt. Herstel weigert bestanden die inmiddels door de game of een andere mod zijn gewijzigd. Verwijder geen backups om die controle te omzeilen. De herstelprocedure schakelt herinstallatie via deze patcher uit; raadpleeg de uitvoer voordat je de mod later opnieuw activeert.
+De eerste opdracht toont alleen wat hersteld wordt. Herstel weigert bestanden die inmiddels door de game of een andere mod zijn gewijzigd. Verwijder geen backups om die controle te omzeilen. De herstelprocedure schakelt herinstallatie via deze patcher blijvend uit. Alleen het profiel aanzetten of de `disabled`-vlag wijzigen herstelt de installatie niet; een ondersteunde automatische herinschakelroute ontbreekt nog. Bewaar ledger en backups voor beoordeling vóór een latere herinstallatie.

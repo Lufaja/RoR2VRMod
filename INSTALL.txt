@@ -1,5 +1,6 @@
 Risk of VR 1.1.0 — Lufaja/RoR2VRMod
-Experimental source version; full game build and Steam Machine/Frame verification pending.
+Experimental build: compiled against public RoR2 1.5.0 references.
+Game launch and Steam Machine/Frame verification are still pending.
 
 Read README.md and docs/STEAM-MACHINE.md before installing.
 A GitHub source-code zip cannot be imported as a compiled mod.

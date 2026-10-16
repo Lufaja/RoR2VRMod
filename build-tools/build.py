@@ -96,8 +96,28 @@ def native_dependency_errors(a):
     return errors
 
 
+def reference_evidence(a):
+    evidence = {'kind': a.reference_source, 'game_runtime_verified': False}
+    if a.reference_source == 'reference-feed':
+        if a.reference_provenance is None or not a.reference_provenance.is_file():
+            raise ValueError('Reference-feed builds require --reference-provenance JSON with source URLs and DLL hashes.')
+        manifest = json.loads(a.reference_provenance.read_text())
+        if manifest.get('schema') != 1 or manifest.get('kind') != 'public-reference-feed' or not manifest.get('sources'):
+            raise ValueError('Invalid reference-feed provenance schema/kind/sources.')
+        actual = {path.name: sha256(path) for path in a.game_managed.glob('*.dll')}
+        if not actual or manifest.get('files') != actual:
+            raise ValueError('Reference-feed DLLs differ from their provenance manifest; restore or update verified references.')
+        evidence['provenance_sha256'] = sha256(a.reference_provenance)
+        evidence['sources'] = manifest['sources']
+    return evidence
+
+
 def dependency_errors(a):
     errors = native_dependency_errors(a)
+    try:
+        reference_evidence(a)
+    except (OSError, ValueError) as error:
+        errors.append(str(error))
     paths = []
     for file in ('common_refs.txt', 'bepinex_refs.txt', 'vrmod_refs.txt'):
         for value in read_refs(file):
@@ -143,7 +163,8 @@ def preflight(a):
     errors = dependency_errors(a)
     if errors:
         raise ValueError('Preflight failed:\n- ' + '\n- '.join(errors) +
-                         '\nUse your legally installed Windows game Managed folder with --game-managed. '
+                         '\nUse original Windows game Managed references with --game-managed, or a documented '
+                         'public reference feed with --reference-source reference-feed and --reference-provenance. '
                          'Keep original game DLLs unchanged. See build-tools/README.md for the reference layout.')
     subprocess.run([a.pwsh, '-NoProfile', '-Command',
                     "if ($PSVersionTable.PSVersion.Major -lt 7) { exit 1 }; "
@@ -208,6 +229,8 @@ def snapshot_inputs(a):
                      and (p.suffix in ('.cs', '.asmdef') or p.name == 'package.json'))
         files.update(directory / name for name in package['license_files'])
         files.update(directory / native['source'] for native in NATIVE if native['package'] == package['name'])
+    if a.reference_provenance is not None:
+        files.add(a.reference_provenance)
     executable = shutil.which(a.pwsh)
     if executable:
         files.add(Path(executable).resolve())
@@ -231,9 +254,10 @@ def build(a):
     if any((a.build_dir / 'out' / name).stat().st_size < 256 for name in OUTPUTS):
         raise ValueError('A compiler output is unexpectedly small; no build receipt written.')
     receipt = {'schema': 1, 'inputs': after, 'outputs': outputs,
-               'commands': commands(a), 'hardware_tested': False}
+               'commands': commands(a), 'hardware_tested': False,
+               'reference_source': reference_evidence(a)}
     receipt_path.write_text(json.dumps(receipt, indent=2) + '\n')
-    print('Full source build completed. Game launch and VR hardware remain unverified.')
+    print(f'Full source compilation completed against {a.reference_source}. Game launch and VR hardware remain unverified.')
 
 
 def package_files(a):
@@ -243,6 +267,8 @@ def package_files(a):
     receipt = json.loads(receipt_path.read_text())
     if receipt.get('schema') != 1 or receipt.get('inputs') != snapshot_inputs(a):
         raise ValueError('Build inputs changed or receipt is invalid. Rebuild before packaging.')
+    if receipt.get('reference_source') != reference_evidence(a):
+        raise ValueError('Reference provenance/options differ from the successful build; use the original options or rebuild.')
     if set(receipt.get('outputs', {})) != set(OUTPUTS):
         raise ValueError('Build receipt does not contain all required outputs.')
     files = {}
@@ -327,6 +353,9 @@ def parser():
     ap.add_argument('command', choices=['preflight', 'plan', 'fetch-xr', 'build', 'validate-package', 'package'])
     ap.add_argument('--game-managed', type=Path, default=Path(os.environ.get('ROR2_MANAGED', ROOT / 'refs' / 'game')))
     ap.add_argument('--refs', type=Path, default=ROOT / 'refs')
+    ap.add_argument('--reference-source', choices=['local-files', 'reference-feed'], default='local-files',
+                    help='Distinguish local reference files from documented public reference packages; neither verifies game runtime')
+    ap.add_argument('--reference-provenance', type=Path, help='Reference-feed JSON source URLs and exact DLL SHA-256 hashes')
     ap.add_argument('--tools', type=Path, default=ROOT / 'build' / 'tools')
     ap.add_argument('--bepinex-core', type=Path)
     ap.add_argument('--monomod', type=Path)
@@ -342,7 +371,7 @@ def arguments(argv=None):
     a.bepinex_core = a.bepinex_core or a.tools / 'bepinex' / 'BepInEx' / 'core'
     a.monomod = a.monomod or a.tools / 'monomod'
     a.packages = a.packages or a.tools / 'packages'
-    for key in ('game_managed', 'refs', 'tools', 'bepinex_core', 'monomod', 'packages', 'build_dir'):
+    for key in ('game_managed', 'refs', 'tools', 'bepinex_core', 'monomod', 'packages', 'build_dir', 'reference_provenance'):
         if getattr(a, key) is not None:
             setattr(a, key, getattr(a, key).expanduser().resolve())
     if a.zip_path is not None:

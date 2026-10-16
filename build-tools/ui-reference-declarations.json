@@ -1,0 +1,79 @@
+[
+  {
+    "type": "UnityEngine.EventSystems.UIBehaviour",
+    "method": "Awake",
+    "declaration": "protected virtual void Awake()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html",
+    "snapshotSha256": "f353ff16a845521c3c58166dabd2d1135aa67589e2e400ee60b09cb8b63f53a4"
+  },
+  {
+    "type": "UnityEngine.EventSystems.UIBehaviour",
+    "method": "OnDestroy",
+    "declaration": "protected virtual void OnDestroy()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html",
+    "snapshotSha256": "f353ff16a845521c3c58166dabd2d1135aa67589e2e400ee60b09cb8b63f53a4"
+  },
+  {
+    "type": "UnityEngine.EventSystems.UIBehaviour",
+    "method": "OnEnable",
+    "declaration": "protected virtual void OnEnable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html",
+    "snapshotSha256": "f353ff16a845521c3c58166dabd2d1135aa67589e2e400ee60b09cb8b63f53a4"
+  },
+  {
+    "type": "UnityEngine.EventSystems.UIBehaviour",
+    "method": "OnDisable",
+    "declaration": "protected virtual void OnDisable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.UIBehaviour.html",
+    "snapshotSha256": "f353ff16a845521c3c58166dabd2d1135aa67589e2e400ee60b09cb8b63f53a4"
+  },
+  {
+    "type": "UnityEngine.EventSystems.BaseInputModule",
+    "method": "OnEnable",
+    "declaration": "protected override void OnEnable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.BaseInputModule.html",
+    "snapshotSha256": "89a95b680db94763619fa0a96d972224d3cbaf519f2836bbad39746777d66669"
+  },
+  {
+    "type": "UnityEngine.EventSystems.BaseInputModule",
+    "method": "OnDisable",
+    "declaration": "protected override void OnDisable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.BaseInputModule.html",
+    "snapshotSha256": "89a95b680db94763619fa0a96d972224d3cbaf519f2836bbad39746777d66669"
+  },
+  {
+    "type": "UnityEngine.EventSystems.EventSystem",
+    "method": "OnEnable",
+    "declaration": "protected override void OnEnable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.EventSystem.html",
+    "snapshotSha256": "8b29e7ecfde56bd1cf33a149d330013f3e406d1e252aa39c38d7bd1f08831114"
+  },
+  {
+    "type": "UnityEngine.EventSystems.EventSystem",
+    "method": "OnDisable",
+    "declaration": "protected override void OnDisable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.EventSystem.html",
+    "snapshotSha256": "8b29e7ecfde56bd1cf33a149d330013f3e406d1e252aa39c38d7bd1f08831114"
+  },
+  {
+    "type": "UnityEngine.EventSystems.EventSystem",
+    "method": "Update",
+    "declaration": "protected virtual void Update()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.EventSystem.html",
+    "snapshotSha256": "8b29e7ecfde56bd1cf33a149d330013f3e406d1e252aa39c38d7bd1f08831114"
+  },
+  {
+    "type": "UnityEngine.EventSystems.BaseRaycaster",
+    "method": "OnEnable",
+    "declaration": "protected override void OnEnable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.BaseRaycaster.html",
+    "snapshotSha256": "0b07f80c7638022e7a36ebb6dec9164eec93f2489681e68417c6598c17230b78"
+  },
+  {
+    "type": "UnityEngine.EventSystems.BaseRaycaster",
+    "method": "OnDisable",
+    "declaration": "protected override void OnDisable()",
+    "source": "https://docs.unity3d.com/Packages/com.unity.ugui@1.0/api/UnityEngine.EventSystems.BaseRaycaster.html",
+    "snapshotSha256": "0b07f80c7638022e7a36ebb6dec9164eec93f2489681e68417c6598c17230b78"
+  }
+]

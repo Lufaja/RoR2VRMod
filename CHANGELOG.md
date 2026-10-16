@@ -9,7 +9,7 @@
 - Runtime and optional world-picker event diagnostics, plus explicit upstream issue acceptance tests.
 - Native XR files receive backup/hash/journal protection and a guarded rollback tool.
 - Portable Python/PowerShell build planning, dependency preflight, immutable XR source lock and receipt-verified allowlist packaging.
-- No full mod build or headset validation yet; no foveated-rendering implementation or performance claim.
+- All seven runtime assemblies compile against documented public RoR2 1.5.0 reference packages; no game-launch/headset validation yet, no foveated-rendering implementation or performance claim.
 
 ## Upstream history
 

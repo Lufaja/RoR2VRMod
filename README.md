@@ -2,7 +2,7 @@
 
 Eigen Steam Frame-fork van [Resurrected VRMod](https://github.com/Blowntobytes/RoR2VRMod), voortbouwend op [DrBibops RoR2VRMod](https://github.com/DrBibop/RoR2VRMod). Bron: [Lufaja/RoR2VRMod](https://github.com/Lufaja/RoR2VRMod).
 
-**Status: experimentele bronversie 1.1.0.** De volledige mod is nog niet gebouwd tegen jouw gamebestanden en niet getest op Steam Machine/Steam Frame. De oorspronkelijke auteurs' compatibiliteitsclaims gelden niet automatisch als bewijs voor deze fork. Er is geen gepubliceerde, als speelbaar geverifieerde release van deze versie.
+**Status: experimentele versie 1.1.0.** Alle zeven mod-/XR-DLLs zijn succesvol gecompileerd tegen publieke RoR2 1.5.0-referenties. De mod is nog niet gestart in de game of getest op Steam Machine/Steam Frame. De oorspronkelijke auteurs' compatibiliteitsclaims gelden niet automatisch als bewijs voor deze fork. Er is geen gepubliceerde, als speelbaar geverifieerde release van deze versie.
 
 ## Bedoelde opstelling
 
@@ -38,9 +38,15 @@ pwsh -NoProfile -File tests/runtime_safety/run.ps1
 RISKOFVR_PWSH=pwsh python3 -m unittest discover -s tests/runtime_safety -v
 ```
 
-Preflight mag niet slagen zonder de echte referenties. Pure-logica- en syntaxtests vervangen geen volledige compilatie of in-game test. [Verificatiestatus en hardwarechecklist](docs/VERIFICATION.md) onderscheiden die bewijzen.
+Preflight vereist echte, vastgelegde referenties. De bouwketen onderscheidt lokale gamebestanden en publieke referentiepackages. Pure-logica- en syntaxtests vervangen geen volledige compilatie of in-game test. [Verificatiestatus en hardwarechecklist](docs/VERIFICATION.md) onderscheiden die bewijzen.
 
 De game-/referentieassemblies blijven lokaal en worden niet gecommit of verpakt. Een geslaagde volledige build is vereist voordat `build.py package` een zip maakt. Er wordt niet automatisch naar Thunderstore gepubliceerd.
+
+De handmatig startbare GitHub Actions-workflow **Experimental reference build**
+bouwt dezelfde code met vastgelegde publieke referenties en levert een
+experimentele import-zip als downloadartefact. De game hoeft daarvoor niet op
+de laptop te staan. Een geslaagde workflow bevestigt compilatie en verpakking;
+de Steam Machine/Frame-hardwarecheck blijft nodig.
 
 ## Issues, configuratie en compatibiliteit
 

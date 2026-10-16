@@ -10,9 +10,6 @@ ${GAME_MANAGED}/System.Runtime.Serialization.dll
 ${GAME_MANAGED}/System.Drawing.dll
 ${GAME_MANAGED}/UnityEngine.*Module.dll
 ${GAME_MANAGED}/UnityEngine.dll
-${GAME_MANAGED}/Unity.Collections.dll
-${GAME_MANAGED}/Unity.Mathematics.dll
-${GAME_MANAGED}/Unity.Burst.dll
 ${REFS}/publicized/RoR2.dll
 ${REFS}/publicized/Assembly-CSharp.dll
 ${REFS}/publicized/HGCSharpUtils.dll
@@ -25,7 +22,6 @@ ${REFS}/publicized/Unity.TextMeshPro.dll
 ${REFS}/publicized/KinematicCharacterController.dll
 ${REFS}/publicized/com.unity.multiplayer-hlapi.Runtime.dll
 ${REFS}/publicized/LegacyResourcesAPI.dll
-${REFS}/publicized/Unity.Timeline.dll
 ${REFS}/publicized/UnityEngine.SpatialTracking.dll
 ${REFS}/publicized/UnityEngine.XR.LegacyInputHelpers.dll
 ${REFS}/publicized/Bhaptics.Tact.dll
@@ -37,11 +33,6 @@ ${REFS}/publicized/Unity.XR.Management.dll
 ${REFS}/publicized/Unity.XR.CoreUtils.dll
 ${REFS}/publicized/Unity.XR.OpenXR.dll
 ${GAME_MANAGED}/Rewired_CSharp.dll
-${GAME_MANAGED}/Facepunch.Steamworks.dll
-${GAME_MANAGED}/Zio.dll
-${GAME_MANAGED}/Wwise.dll
 ${GAME_MANAGED}/AK.Wwise.Unity.API.dll
-${GAME_MANAGED}/Unity.ProBuilder.dll
-${GAME_MANAGED}/Unity.RenderPipelines.Core.Runtime.dll
 ${BUILD}/mmhook/MMHOOK_RoR2.dll
 ${BUILD}/out/VRPatcher.dll

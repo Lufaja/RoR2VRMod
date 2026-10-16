@@ -12,8 +12,9 @@ are separate release gates; see the root documentation.
 
 ## Local inputs
 
-Nothing here downloads or redistributes Risk of Rain 2. Copy references from your
-own legally installed Windows game. Keep the originals unchanged. By default:
+For the local-file route, copy references from your own legally installed Windows
+game. Keep the originals unchanged. The separate public reference-feed route below
+downloads compile metadata and build dependencies. By default:
 
 ```text
 refs/
@@ -49,6 +50,56 @@ actual game build; do not download arbitrary replacement game DLLs.
 The optional haptics libraries are still required to **compile** the existing
 integrations. Their absence at runtime is supported by the mod. They are never
 silently added to the Thunderstore ZIP.
+
+## Public reference-feed builds
+
+A local game installation is not required for a **reference compilation**. Public
+modding reference packages can provide the game's API metadata. This is different
+from validating an installed game build: reference assemblies are never runtime
+files and never enter the ZIP.
+
+The reference-feed path uses `RiskOfRain2.GameLibs` **1.5.0-r.1** from the BepInEx
+feed, `UnityEngine.Modules` **2021.3.33**, `NETStandard.Library.Ref` **2.1.0**,
+BepInEx Core **5.4.21** (BaseLib **5.4.20**, HarmonyX **2.7.0**), and legacy MonoMod
+**22.7.31.1** with Mono.Cecil **0.11.4**. These replace the obsolete GameLibs version
+in the browsing-only project file; source definitions still target Unity2021.3.
+Local evidence records public download URLs, archive hashes and any narrowly scoped
+reference metadata transformations. The optional haptics integrations require real
+upstream DLLs; no API stubs are accepted.
+
+Recreate the successful reference compilation inputs with the pinned public URLs
+and archive SHA-256 hashes in `reference-feed.lock.json`. This additionally requires
+`curl` on PATH. The output directory **must not already exist**; a failed preparation
+keeps its partial output for inspection, and a retry needs a new `--output` path.
+`--cache` defaults to `build/tools/reference-cache`; existing cached files must
+match their pinned hash and are never replaced. `--pwsh` or `PWSH` selects PowerShell.
+
+```sh
+python3 build-tools/prepare-reference-feed.py --output build/reference-feed
+python3 build-tools/build.py fetch-xr
+python3 build-tools/build.py build --game-managed build/reference-feed/refs --refs build/reference-feed --bepinex-core build/reference-feed/bepinex/BepInEx/core --monomod build/reference-feed/monomod --reference-source reference-feed --reference-provenance build/reference-feed/refs/provenance.json
+```
+
+Use those same six location/provenance flags with `validate-package` or `package`.
+The script builds two reference assemblies from the unmodified official Unity
+Legacy Input Helpers **2.1.7** sources, and extracts the two existing haptics
+assemblies from the upstream DrBibop VRMod **2.9.2** patcher's embedded resources
+without loading or executing that patcher.
+
+The publicized GameLibs UI reference has eleven lifecycle methods marked public
+where the real Unity UI API declares protected overrides. The helper restores only
+those existing access flags on a reference copy, using the official declarations
+recorded in `ui-reference-declarations.json`. It preserves the original, requires
+its pinned hash and records each changed member plus original/output hashes.
+No methods or stub API implementations are invented. This corrected compile
+reference remains excluded from the mod package.
+
+The provenance JSON must contain `schema: 1`, `kind: "public-reference-feed"`, a
+nonempty `sources` array with the dependency origins, and `files` mapping every
+DLL filename in the feed directory to its SHA-256. Added/modified/missing DLLs
+invalidate it. Successful receipts record this classification and explicitly keep
+`game_runtime_verified: false` and `hardware_tested: false`. A local-file build
+also does not assert game compatibility merely because its references exist.
 
 ## Locked XR sources
 
@@ -161,3 +212,6 @@ publication and package allowlisting. With `PWSH` set (or `pwsh` on PATH), a rea
 Roslyn smoke test also checks embedded resources and removal of stale compiler output. They create
 fixtures only in disposable temporary directories. They do not reset any database,
 create a real mod release or simulate a successful game build.
+Reference bootstrap tests additionally cover pinned archive hashes, traversal and
+symlink entries, library framework selection, existing-output preservation and
+concurrent cache publication.
