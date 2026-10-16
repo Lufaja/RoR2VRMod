@@ -105,8 +105,16 @@ class BuildSafetyTests(unittest.TestCase):
         for resources in build.RESOURCES.values():
             for name in resources.values():
                 self.assertIn(name, all_args)
-        self.assertNotIn('/root/', all_args)
-        self.assertNotIn('/opt/', all_args)
+        # Python/PowerShell may legitimately live under /opt (GitHub runners do).
+        # Check resolved build/tool paths rather than banning host directories.
+        for command in compilation:
+            self.assertEqual(command[0], sys.executable)
+            self.assertEqual(command[1], str(build.HERE / 'ubuild.py'))
+            self.assertEqual(Path(command[command.index('--out') + 1]).parent, a.build_dir / 'out')
+            self.assertEqual(command[command.index('--pwsh') + 1], a.pwsh)
+        for command in plan:
+            if '-File' in command:
+                self.assertEqual(Path(command[command.index('-File') + 1]).parent, build.HERE)
 
     def test_original_game_directory_cannot_be_publicized(self):
         with self.assertRaisesRegex(ValueError, 'must be separate'):
